@@ -1,0 +1,393 @@
+// Theme
+@import url("element-ui-theme-red/index.css");
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Nunito");
+@import url("https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap");
+
+// Variables
+@import "variables";
+
+// Bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+@font-face {
+    font-family: Ntailu;
+    src: url("/fonts/ntailu.ttf");
+}
+
+@font-face {
+    font-family: Canterbury;
+    src: url("/fonts/Canterbury.ttf");
+}
+body {
+    font-family: Ntailu;
+    background-color: #ffffff;
+    height: 100%;
+    min-height: 100%;
+}
+textarea:hover,
+input:hover,
+textarea:active,
+input:active,
+textarea:focus,
+input:focus,
+button:focus,
+button:active,
+button:hover,
+label:focus,
+.btn:active,
+.btn.active {
+    outline: 0px !important;
+    -webkit-appearance: none !important;
+    border: 1px solid #ced4da !important;
+    -webkit-box-shadow: none !important;
+}
+.header-title h1 {
+    font-size: 28px;
+    color: #ffffff;
+}
+.el-select {
+    width: 100%;
+}
+img.logo {
+    float: left;
+    width: 105px;
+}
+.bg-primary {
+    background-color: #800000 !important;
+}
+
+.header-title {
+    float: left;
+    padding: 10px;
+}
+.header-title h1,
+.header-title h3 {
+    color: #ffffff;
+    text-align: center;
+}
+.header-title h1 {
+    font-family: Canterbury;
+    font-size: 35px;
+}
+.header-title h3 {
+    font-size: 25px;
+}
+li.nav-item {
+    background-color: #800000;
+    border-right: 1px solid #611212;
+    border-left: 1px solid #9f0b0b;
+    position: relative;
+}
+li.nav-item.active,
+li.nav-item:hover {
+    background-color: #740101;
+    border-left: 1px solid #6102028c;
+}
+
+li.nav-item:first-child:before {
+    content: "";
+    border-right: 1px solid #611212;
+    height: 100%;
+    position: relative;
+    display: inline-block;
+    left: -2px;
+}
+
+li.nav-item:last-child:after {
+    content: "";
+    border-left: 1px solid #9f0b0b;
+    height: 100%;
+    position: relative;
+    display: inline-block;
+    right: -2px;
+}
+
+ul.navbar-nav {
+    height: 134px;
+    margin: -20px 0;
+}
+
+a.nav-link {
+    display: table-cell;
+    vertical-align: middle;
+    text-transform: uppercase;
+    color: #ffffff !important;
+    width: 100px;
+    text-align: center;
+}
+li.nav-item {
+    display: table;
+    height: 100%;
+}
+li.nav-item a,
+a.dropdown-item {
+    text-shadow: 1px 1px 1px #000;
+}
+.nav-item a .avatar {
+    width: 48px;
+    height: 48px;
+    display: inline;
+    box-shadow: 0px 0px 8px 0px #470101;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+a#navbarDropdown:after {
+    content: "";
+    border: solid white;
+    border-width: 0px 2px 2px 0px;
+    padding: 3px;
+    display: inline-block;
+    transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    position: absolute;
+    bottom: 33px;
+    left: 47px;
+}
+a.dropdown-item {
+    color: #ffffff;
+}
+a.dropdown-item {
+    color: #ffffff;
+
+    font-size: 16px;
+}
+a.dropdown-item:hover {
+    color: #ffffff;
+    background-color: #740101;
+}
+.dropdown-menu.dropdown-menu-right.show {
+    left: -56px;
+    top: 131px;
+    border-radius: 0 0 10px 10px;
+    background-color: #800000;
+    box-shadow: 0px 3px 4px 0px #00000036;
+}
+img.avatar.avatar-medium {
+    width: 96px;
+    height: 96px;
+}
+img.avatar.avatar-small {
+    width: 48px;
+    height: 48px;
+}
+.auth-body {
+    background-size: cover;
+    background-image: url(/images/usep-obrero.jpg);
+
+    .auth {
+        margin-top: 10%;
+    }
+
+    .justify-content-center {
+        padding: 17.5% 0;
+        height: 80.4vh;
+    }
+    .login.card {
+        background-color: transparent;
+        border: none;
+        .inner-cont {
+            width: 100%;
+        }
+    }
+    .login .card-body {
+        padding: 0;
+    }
+    .logo-login-cont {
+        height: 100%;
+        background-color: #ffffff61;
+        border-radius: 10px 0 0 10px;
+    }
+    .login-login-img {
+        background: url("/images/usep-logo.png") center center no-repeat;
+        height: 100%;
+    }
+
+    .login .col-md-6 {
+        padding: 0;
+    }
+
+    .login form {
+        padding: 120px 20px;
+        background-color: #ffffff;
+        border-radius: 0 10px 10px 0;
+    }
+
+    .login form .action-btn {
+        margin: 0 auto;
+        display: block;
+        background-color: #991b1e;
+        width: 100%;
+        border-radius: 0;
+    }
+    .login form .action-text-input {
+        border-radius: 0;
+    }
+
+    .login form h3 {
+        text-align: center;
+        text-transform: uppercase;
+        color: #991b1e;
+    }
+    .login form .form-group {
+        padding: 0 20px;
+    }
+    .other-btn-cont {
+        position: absolute;
+        bottom: 15px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .other-btn-cont a {
+        color: #991b1e;
+        font-size: 15px;
+        text-transform: uppercase;
+        font-weight: bold;
+    }
+}
+#home.outer-container {
+    width: 100%;
+    position: relative;
+    background-image: url(/images/usep-obrero.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    padding: 20px;
+    min-height: 1000px;
+    transform: translateZ(-1px);
+
+    .row.justify-content-center {
+        padding: 50px;
+        transform: translateZ(0);
+    }
+    .jumbotron {
+        background-color: #07070742;
+        color: #fff !important;
+        text-shadow: -1px -1px 1px #000;
+        color: black;
+        width: 100%;
+    }
+    h1.display-4 {
+        text-align: center;
+    }
+    hr.my-4 {
+        background: #ffffff;
+    }
+    .lead {
+        font-size: 21px;
+        font-weight: bold;
+        text-align: center;
+    }
+    img.card-img-top {
+        border-radius: 10px;
+        width: 150px;
+        height: 150px;
+        display: block;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 0 5px 0px #000000;
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .card {
+        background-color: transparent;
+        border: none;
+        margin-bottom: 50px;
+    }
+    .card-title {
+        margin-bottom: 0.75rem;
+        text-align: center;
+        color: #ffffff;
+    }
+
+    .card-body {
+        background-color: #ffffff;
+        border-radius: 10px;
+        width: 150px;
+        height: 150px;
+        box-shadow: 0 0 5px 0px #000000;
+        display: block;
+        padding: 10px;
+        margin: 0 auto;
+        cursor: pointer;
+        h1 {
+            text-align: center;
+            font-weight: bold;
+            color: #68c2e8;
+            font-family: Montserrat;
+            margin-top: 35px;
+            font-size: 25px;
+        }
+        h2 {
+            text-align: center;
+            color: #0e1e40;
+            font-size: 13px;
+            font-family: Montserrat;
+        }
+    }
+}
+
+main.normal-pages {
+    min-height: 100px;
+}
+.inner-cont {
+    width: 100%;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 0 2px #cccccc;
+    margin: 20px 0;
+
+    #search-area {
+        width: 100%;
+    }
+    #search-area .el-row {
+        width: 90%;
+        margin: 0 auto;
+    }
+
+    #search-area #search {
+        border-radius: 50px;
+        height: 50px;
+        padding: 0 25px;
+    }
+    .no-search-result {
+        text-align: center;
+        color: #ccc;
+    }
+}
+.el-dialog {
+    border-radius: 10px;
+}
+.el-dialog__header {
+    background-color: #800000;
+    border-radius: 10px 10px 0 0;
+}
+.el-dialog__title {
+    color: #ffffff;
+}
+.el-dialog__footer {
+    border-radius: 0 0 10px 10px;
+    background-color: #800000;
+}
+.footer {
+    background-color: #800000;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+}
+
+.footer p {
+    color: #fff;
+    text-align: center;
+    margin: 0;
+}
+
+@media only screen and (max-width: 1200px) {
+    body {
+        background-color: lightblue;
+    }
+}
