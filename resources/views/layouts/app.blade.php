@@ -47,7 +47,7 @@
                     <img src="/images/usep-logo.png" class="logo" />
                     <div class="header-title">
                         <h1>University of Southeastern Philippines</h1>
-                        <h3>University Resource Learning Center</h3>
+                        <h3>University Learning Resource Center</h3>
                     </div>
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
