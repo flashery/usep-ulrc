@@ -3,17 +3,13 @@ import { Bar } from "vue-chartjs";
 
 export default {
     props: {
-        keys: {
+        labels: {
             type: Array,
             default: null
         },
-        values: {
+        datasets: {
             type: Array,
             default: null
-        },
-        label: {
-            type: String,
-            default: ''
         }
     },
     extends: Bar,
@@ -27,8 +23,8 @@ export default {
                 xAxes: [
                     {
                         barPercentage: 0.5,
-                        barThickness: 6,
-                        maxBarThickness: 8,
+                        barThickness: 15,
+                        maxBarThickness: 15,
                         minBarLength: 2,
                         gridLines: {
                             offsetGridLines: true
@@ -42,16 +38,10 @@ export default {
         }
     }),
 
-    created() {
+    mounted() {
         this.datacollection = {
-            labels: this.keys,
-            datasets: [
-                {
-                    label: this.label,
-                    backgroundColor: "maroon",
-                    data: this.values
-                }
-            ]
+            labels: this.labels,
+            datasets: this.datasets
         };
 
         this.$nextTick(() => {

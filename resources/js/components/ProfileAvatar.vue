@@ -13,6 +13,7 @@
       <img :src="user.image + ' avatar' | noImage" class="avatar">
     </a>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+      <a class="dropdown-item" href="/search">Search</a>
       <a class="dropdown-item" href="/bib">Bibs</a>
       <a class="dropdown-item" href="/dcs">DCS</a>
       <a class="dropdown-item" href="/users">Users</a>

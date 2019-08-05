@@ -69,8 +69,7 @@ export default {
                     },
                     {
                         min: 3,
-                        max: 30,
-                        message: "Name should be atleast to 3 to 30 letters",
+                        message: "Name should be atleast 3 letters",
                         trigger: "blur"
                     }
                 ],

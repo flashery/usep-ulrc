@@ -10,4 +10,9 @@ class Bib extends Model
     {
         return $this->belongsToMany(MarcTag::class)->withPivot('value');
     }
+
+    public function  subjects()
+    {
+        return $this->belongsToMany(Subject::class, 'bib_subjects');
+    }
 }

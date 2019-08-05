@@ -29,31 +29,27 @@ class BibMarcTagTableSeeder extends Seeder
 
             $data = [];
             foreach ($marc_tags as $marc_tag) {
-                if ($marc_tag->non_marc_tag === 'ISBN') {
+                if ($marc_tag->marc_tag === 112) {
                     $data[$marc_tag->id] = ['value' => $bib_provider->ISBN()];
-                    // print_r([$marc_tag->non_marc_tag, $data]);
-                    // dd('ISBN');
                 }
-                if ($marc_tag->non_marc_tag === 'Call Number') {
+                if ($marc_tag->marc_tag === 114) {
                     $data[$marc_tag->id] = ['value' => $bib_provider->callNumber($faker)];
-                    // print_r([$marc_tag->non_marc_tag, $data]);
-
-                    // dd('Call Number');
                 }
-                if ($marc_tag->non_marc_tag === 'Title') {
+                if ($marc_tag->marc_tag === 111) {
                     $data[$marc_tag->id] = ['value' => $bib_provider->title()];
-                    // print_r([$marc_tag->non_marc_tag, $data]);
-
-                    // dd('Title');
                 }
-                if ($marc_tag->non_marc_tag === 'Volume') {
-                    $data[$marc_tag->id] = ['value' => $bib_provider->volume(1)];
-
-                    // print_r([$marc_tag->non_marc_tag, $data]);
-
-                    // dd('Volume');
+                if ($marc_tag->marc_tag === 113) {
+                    $data[$marc_tag->id] = ['value' => $bib_provider->volume()];
                 }
-                // print_r($data);
+
+                if ($marc_tag->marc_tag === 115) {
+                    $data[$marc_tag->id] = ['value' => $bib_provider->titles()];
+                }
+
+                if ($marc_tag->marc_tag === 116) {
+                    $data[$marc_tag->id] = ['value' => $bib_provider->dateOfPublication()];
+                }
+
                 $bib->marc_tags()->sync($data);
             }
         }

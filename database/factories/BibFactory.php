@@ -6,5 +6,5 @@ use App\Bib;
 use Faker\Generator as Faker;
 
 $factory->define(Bib::class, function (Faker $faker) {
-    return [];
+    return ['views'=> $faker->numberBetween($min = 0, $max = 4)];
 });

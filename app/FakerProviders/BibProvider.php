@@ -7,6 +7,13 @@ use Faker\Factory as Faker;
 
 class BibProvider extends Base
 {
+    private $faker;
+
+    public function __construct(Faker $faker)
+    {
+        $this->faker = $faker;
+    }
+    
     public function title($nbWords = 3, $variableNbWords = true)
     {
         $sentence = $this->generator->sentence($nbWords, $variableNbWords);
@@ -20,7 +27,7 @@ class BibProvider extends Base
 
     public function volume()
     {
-        return $this->numberBetween($min = 0, $max = 3);
+        return $this->numberBetween($min = 0, $max = 1);
     }
 
     public function callNumber()
@@ -32,5 +39,16 @@ class BibProvider extends Base
         $year = $faker->year($max = 'now');
 
         return $dewey_decimal . " " . $titles . " " . $year;
+    }
+
+    public function titles()
+    {
+        return $this->numberBetween($min = 0, $max = 1);
+    }
+
+    public function dateOfPublication()
+    {
+        $faker = Faker::create();
+        return $faker->dateTimeBetween($startDate = '2010-01-01 12:00:00', $endDate = 'now', $timezone = date_default_timezone_get());
     }
 }

@@ -15,6 +15,7 @@ class CreateBibsTbl extends Migration
     {
         Schema::create('bibs', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->integer('views');
             $table->timestamps();
         });
     }

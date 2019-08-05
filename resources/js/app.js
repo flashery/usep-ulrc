@@ -38,9 +38,8 @@ Vue.component("search", require("./components/Search.vue").default);
 Vue.component("reports", require("./components/Reports.vue").default);
 
 Vue.filter("noImage", image => {
-    let image1 = image || image !== "" ? image : "/images/default.jpg";
-
-    console.log("wew", image1);
+    let image1 = "";
+    image1 = image && image !== "" ? image : "/images/default.jpg";
     return image1;
 });
 /**

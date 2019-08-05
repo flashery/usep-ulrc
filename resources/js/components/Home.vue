@@ -3,7 +3,7 @@
         <div class="jumbotron">
             <h1 class="display-4">Welcome to the</h1>
             <h1 class="display-4">University Resource Learning Center</h1>
-            <hr class="my-4">
+            <hr class="my-4" />
             <p class="lead">Please click on one of the program that you are interested in below.</p>
         </div>
         <!-- <div class="col-md-3">
@@ -16,43 +16,15 @@
         </div>-->
         <div v-for="(department, index) in departments" :key="index" class="col-md-3">
             <div class="card">
-                <img
-                    :src="department.image | noImage "
-                    class="card-img-top"
-                    alt="College of Technology"
-                >
+                <a href="/search">
+                    <img
+                        :src="department.image | noImage "
+                        class="card-img-top"
+                        alt="College of Technology"
+                    />
+                </a>
             </div>
         </div>
-        <!-- <div class="col-md-3">
-            <div class="card">
-                <img src="/images/coed.png" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <img src="/images/cba.png" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <img src="/images/coaas.jpg" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <img src="/images/coe.png" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <img src="/images/ioc.png" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card">
-                <img src="/images/sae.png" class="card-img-top" alt="College of Technology">
-            </div>
-        </div>-->
     </div>
 </template>
 
@@ -77,7 +49,6 @@ export default {
                     this.loading = false;
 
                     this.departments = response.data;
-
                 })
                 .catch(err => {
                     this.loading = false;
