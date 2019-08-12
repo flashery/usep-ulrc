@@ -70,6 +70,7 @@
             :mode="mode"
             :p_marc_tags="marc_tags"
             :p_bib="current_bib"
+            :p_subjects="subjects"
             :show_bib_modal="show_bib_modal"
         ></bib-modal>
         <marc-tag-modal
@@ -106,14 +107,15 @@ export default {
             show_marc_tag_modal: false,
             show_view_marc_tags_modal: false,
             mode: "CREATE",
-            current_bib: { id: 0, marc_tags: [] },
+            current_bib: { id: 0, marc_tags: [], volumes: [], subjects: [] },
             current_marc_tag: {
                 marc_tag: "",
                 non_marc_tag: "",
                 show_as_default: false
             },
             bibs: [],
-            marc_tags: []
+            marc_tags: [],
+            subjects: []
         };
     },
 
@@ -152,43 +154,52 @@ export default {
                 });
         },
         addNewBib() {
-            this.current_bib = { id: 0, marc_tags: [] };
+            this.current_bib = {
+                id: 0,
+                marc_tags: this.marc_tags,
+                volumes: [],
+                subjects: []
+            };
             this.mode = MODE_CREATE;
             this.show_bib_modal = true;
         },
         editBib(bib) {
-            axios
-                .get("/marc-tag")
-                .then(response => {
-                    this.marc_tags = response.data;
-                    this.current_bib["id"] = bib.id;
+            this.current_bib.id = bib.id;
+            this.current_bib.volumes = bib.volumes;
+            this.current_bib.subjects = bib.subjects;
+            this.subjects = bib.subjects;
+            this.current_bib.marc_tags = bib.marc_tags;
 
-                    bib.marc_tags.forEach(marc_tag => {
-                        let tag = this.marc_tags.find(temp => {
-                            return marc_tag.id === temp.id;
-                        });
+            // axios
+            //     .get("/marc-tag")
+            //     .then(response => {
+            //         this.marc_tags = response.data;
+            //         bib.marc_tags.forEach(marc_tag => {
+            //             let tag = this.marc_tags.find(temp => {
+            //                 return marc_tag.id === temp.id;
+            //             });
 
-                        if (tag) {
-                            this.marc_tags[
-                                this.marc_tags.indexOf(tag)
-                            ] = marc_tag;
+            //             if (tag) {
+            //                 this.marc_tags[
+            //                     this.marc_tags.indexOf(tag)
+            //                 ] = marc_tag;
 
-                            this.current_bib["marc_tags"][marc_tag.id] =
-                                marc_tag.pivot.value;
-                        } else {
-                            this.current_bib["marc_tags"][marc_tag.id] = "";
-                        }
-                    });
-                })
-                .catch(err => {
-                    console.log(err);
+            //                 this.current_bib["marc_tags"][marc_tag.id] =
+            //                     marc_tag.pivot.value;
+            //             } else {
+            //                 this.current_bib["marc_tags"][marc_tag.id] = "";
+            //             }
+            //         });
+            //     })
+            //     .catch(err => {
+            //         console.log(err);
 
-                    this.$message({
-                        message:
-                            "Sorry, there is an error getting the MARC tags.",
-                        type: "error"
-                    });
-                });
+            //         this.$message({
+            //             message:
+            //                 "Sorry, there is an error getting the MARC tags.",
+            //             type: "error"
+            //         });
+            //     });
 
             this.mode = MODE_UPDATE;
             this.show_bib_modal = true;

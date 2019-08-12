@@ -13,6 +13,7 @@
                     <td>{{marc_tag.non_marc_tag}}</td>
                     <td>{{bib['marc_tags'][marc_tag.id]}}</td>
                 </tr>
+                
             </tbody>
         </table>
     </el-dialog>

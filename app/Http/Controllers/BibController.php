@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Bib;
 use Illuminate\Http\Request;
+use App\BibVolume;
+use App\BibMarcTag;
 
 class BibController extends Controller
 {
@@ -24,8 +26,8 @@ class BibController extends Controller
      */
     public function index(Request $request)
     {
-        $bibs = Bib::with('marc_tags')->get();
-
+        $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->limit(5)->get();
+        // dd($bibs);
         if ($request->ajax()) {
             return response()->json($bibs);
         }
@@ -51,16 +53,40 @@ class BibController extends Controller
      */
     public function store(Request $request)
     {
-        $bib = Bib::create();
+        // $data = $request->g
+        $subjects = $request->get('subjects');
+        $volumes = $request->get('volumes');
+        $marc_tags = $request->get('marc_tags');
+        $bib_volumes = [];
+        $bib_subjects = [];
+        $bib_tags = [];
 
-        $bib_tags = $request->get('bib_tags');
-
-        foreach ($bib_tags as $index => $bib_tag) {
-            if (!$bib_tag) unset($bib_tags[$index]);
+        foreach ($subjects as  $index => $subject) {
+            if (!$subject) {
+                unset($subjects[$index]);
+            } else {
+                $bib_subjects[] = $subject;
+            }
         }
 
-        $bib->marc_tags()->sync($bib_tags);
+        foreach ($volumes as $volume) {
+            array_push($bib_volumes, new BibVolume($volume));
+        }
+
+        foreach ($marc_tags as  $bib_tag) {
+            print_r($bib_tag);
+            array_push($bib_tags, new BibMarcTag([
+                'marc_tag_id' => $bib_tag['id'],
+                'value' => isset($bib_tag['value']) ? $bib_tag['value'] : '',
+            ]));
+        }
+        // dd($bib_volumes);
+        $bib = Bib::create();
+        $bib->volumes()->saveMany($bib_volumes);
+        $bib->subjects()->sync($bib_subjects);
+        $bib->bib_marc_tags()->saveMany($bib_tags);
     }
+
 
     /**
      * Display the specified resource.
@@ -69,9 +95,7 @@ class BibController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show(Bib $bib)
-    {
-        
-    }
+    { }
 
     /**
      * Show the form for editing the specified resource.
@@ -91,13 +115,47 @@ class BibController extends Controller
      */
     public function update(Request $request, Bib $bib)
     {
-        $bib_tags = $request->get('bib_tags');
-        
-        foreach ($bib_tags as $index => $bib_tag) {
-            if (!$bib_tag) unset($bib_tags[$index]);
+        $subject_ids = $request->get('subjects');
+        $volumes = $request->get('volumes');
+        $bib_tags = $request->get('marc_tags');
+        $bib_subjects = [];
+        $volume_ids = [];
+        $bib_tag_ids = [];
+
+        foreach ($subject_ids as  $index => $subject_id) {
+            if (!$subject_id) {
+                unset($subject_ids[$index]);
+            } else {
+                array_push($bib_subjects, $subject_ids);
+            }
         }
 
-        $bib->marc_tags()->sync($bib_tags);
+        foreach ($bib_tags as $bib_tag) {
+            if (!isset($bib_tag['id']) || in_array($bib_tag['id'], $bib_tag_ids)) {
+                $bib_tag['id'] = $bib->bib_marc_tags()->max('id') + 1;
+                // dd($bib_tag_ids, $bib_tag);
+            }
+
+            $bib->bib_marc_tags()->updateOrCreate(['id' => $bib_tag['id']], [
+                'marc_tag_id' => $bib_tag['pivot']['marc_tag_id'],
+                'value' => $bib_tag['pivot']['value'],
+            ]);
+
+            array_push($bib_tag_ids, $bib_tag['id']);
+        }
+
+
+        foreach ($volumes as $volume) {
+            if (!isset($volume['id'])) {
+                $volume['id'] = $bib->volumes()->max('id') + 1;
+            }
+            $bib->volumes()->updateOrCreate(['id' => $volume['id']], $volume);
+            array_push($volume_ids, $volume['id']);
+        }
+
+        $bib->bib_marc_tags()->whereNotIn('id', $bib_tag_ids)->delete();
+        $bib->volumes()->whereNotIn('id', $volume_ids)->delete();
+        $bib->subjects()->sync($bib_subjects);
     }
 
     /**

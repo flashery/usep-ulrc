@@ -3,7 +3,7 @@
         :title="title"
         :visible.sync="show_bib_modal"
         :before-close="handleClose"
-        width="35%"
+        width="60%"
         v-loading="modal_loading"
     >
         <el-form
@@ -14,11 +14,143 @@
             label-position="left"
             label-width="100px"
         >
-            <div v-for="(marc_tag, index) in marc_tags" :key="index">
-                <el-form-item v-if="marc_tag.show_as_default" :label="marc_tag.non_marc_tag">
-                    <el-input v-model="form['marc_tags'][marc_tag.id]"></el-input>
-                </el-form-item>
-            </div>
+            <el-row :gutter="20">
+                <el-col v-if="mode === 'CREATE'" :span="12">
+                    <h5>Marc Tags</h5>
+                    <!-- <div v-for="(marc_tag, index) in marc_tags" :key="index">
+                        <el-form-item
+                            v-if="marc_tag.show_as_default"
+                            :label="marc_tag.non_marc_tag"
+                        >
+                            <el-row :gutter="20">
+                                <el-col :span="20">
+                                    <el-input v-model="form['marc_tags'][marc_tag.id]"></el-input>
+                                </el-col>
+                                <el-col :span="2">
+                                    <el-button
+                                        size="mini"
+                                        type="primary"
+                                        @click="cloneMarcTag(index,marc_tag)"
+                                        icon="el-icon-plus"
+                                    ></el-button>
+                                </el-col>
+                            </el-row>
+                        </el-form-item>
+                    </div>-->
+                    <el-form-item
+                        v-for="(marc_tag, index) in marc_tags"
+                        :key="index"
+                        :label="getMarcTag(marc_tag.id)"
+                    >
+                        <el-row :gutter="20">
+                            <el-col :span="16">
+                                <el-input v-model="marc_tag.value"></el-input>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-button-group>
+                                    <el-button
+                                        type="danger"
+                                        size="mini"
+                                        icon="el-icon-delete"
+                                        @click="deleteMarcTag(marc_tag)"
+                                    ></el-button>
+                                    <el-button
+                                        size="mini"
+                                        type="primary"
+                                        @click="cloneMarcTag(index,marc_tag)"
+                                        icon="el-icon-plus"
+                                    ></el-button>
+                                </el-button-group>
+                            </el-col>
+                        </el-row>
+                    </el-form-item>
+                </el-col>
+                <!-- UPDATE -->
+                <el-col v-if="mode === 'UPDATE'" :span="12">
+                    <h5>Marc Tags</h5>
+                    <el-form-item
+                        v-for="(marc_tag, index) in form.marc_tags"
+                        :key="index"
+                        :label="getMarcTag(marc_tag.pivot.marc_tag_id)"
+                    >
+                        <el-row :gutter="20">
+                            <el-col :span="16">
+                                <el-input v-model="marc_tag.pivot.value"></el-input>
+                            </el-col>
+                            <el-col :span="6">
+                                <el-button-group>
+                                    <el-button
+                                        type="danger"
+                                        size="mini"
+                                        icon="el-icon-delete"
+                                        @click="deleteMarcTag(marc_tag)"
+                                    ></el-button>
+                                    <el-button
+                                        size="mini"
+                                        type="primary"
+                                        @click="cloneMarcTag(index,marc_tag)"
+                                        icon="el-icon-plus"
+                                    ></el-button>
+                                </el-button-group>
+                            </el-col>
+                        </el-row>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <h5>Volumes</h5>
+                    <el-form-item
+                        v-for="(volume, index) in form.volumes"
+                        :key="volume.created_at+'-'+index"
+                    >
+                        <el-row :gutter="20">
+                            <el-col :span="20">
+                                <el-input v-model="volume.label"></el-input>
+                            </el-col>
+                            <el-col :span="4">
+                                <el-button
+                                    type="danger"
+                                    size="mini"
+                                    icon="el-icon-delete"
+                                    @click="deleteVolume(volume)"
+                                ></el-button>
+                            </el-col>
+                        </el-row>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button
+                            size="mini"
+                            type="primary"
+                            @click="form.volumes.push({})"
+                        >Add volume</el-button>
+                    </el-form-item>
+                    <h5>Subjects</h5>
+                    <el-form-item>
+                        <el-select
+                            multiple
+                            filterable
+                            remote
+                            reserve-keyword
+                            placeholder="Please enter the name of a subject"
+                            :remote-method="searchSubject"
+                            :v-loading="loading"
+                            value-key="id"
+                            v-model="form.subjects"
+                        >
+                            <el-option
+                                v-for="(subject,i) in subjects"
+                                :key="subject.name+'-'+i"
+                                :label="subject.name"
+                                :value="subject"
+                            ></el-option>
+                        </el-select>
+                        <!-- <el-tag
+                            v-for="(subject,index) in form.subjects"
+                            :key="subject.name+'-'+index"
+                            closable
+                        >{{subject.name}}</el-tag>-->
+                    </el-form-item>
+                </el-col>
+            </el-row>
         </el-form>
         <div v-if="authenticated" slot="footer" class="dialog-footer">
             <el-button type="default" :icon="icon" @click="submit()">{{action}}</el-button>
@@ -31,13 +163,18 @@ const URL_PATH = "/bib";
 const MODE_CREATE = "CREATE";
 const MODE_UPDATE = "UPDATE";
 export default {
-    props: ["mode", "show_bib_modal", "p_bib", "p_marc_tags"],
+    props: ["mode", "show_bib_modal", "p_bib", "p_marc_tags", "p_subjects"],
     data() {
         return {
             authenticated: window.Laravel.user.authenticated,
             modal_loading: false,
+            loading: false,
             uploading: false,
+            bib_subjects: [],
+            bib_volumes: [],
             bib_tags: [],
+            parsed: "",
+            search_subjects: [],
             rules: {
                 departments: [
                     {
@@ -74,41 +211,55 @@ export default {
         handleClose() {
             this.$emit("close");
         },
+        getMarcTag(id) {
+            let tag = this.marc_tags.find(temp => {
+                return id === temp.id;
+            });
+            console.log(tag);
+            return tag.non_marc_tag;
+        },
         submit() {
-            this.formatData();
-
             if (this.mode === MODE_CREATE) {
                 this.saveToDatabase();
             } else {
                 this.updateToDatabase();
             }
         },
-        // formatData() {
-        //     // Format data to be save on the database
-        //     Object.entries(this.form).forEach(entry => {
-        //         let new_key = entry[0].split("-");
-        //         let marc_tag_id = parseInt([new_key[1]]);
+        deleteVolume(volume) {
+            this.form.volumes.splice(this.form.volumes.indexOf(volume), 1);
+        },
+        deleteMarcTag(marc_tag) {
+            this.form.marc_tags.splice(
+                this.form.marc_tags.indexOf(marc_tag),
+                1
+            );
+        },
+        cloneMarcTag(index, marc_tag) {
+            let data = JSON.parse(JSON.stringify(marc_tag));
+            this.form.marc_tags.splice(index, 0, data);
+        },
 
-        //         // let str_val = new_key[0].toString();
-        //         // let obj = {};
-        //         // obj[str_val] = entry[1];
-        //         this.bib_tags[new_key[1]] = { value: entry[1] };
-        //         // this.bib_tags.push([marc_tag_id][{ value: entry[1] }]);
-        //     });
-        // },1
-        formatData() {
-            // Format data to be save on the database
-            // this.form.marc_tags.forEach(
-            Object.entries(this.form.marc_tags).forEach(entry => {
-                this.bib_tags[entry[0]] = { value: entry[1] };
-            });
-            console.log(this.bib_tags);
+        searchSubject(q) {
+            setTimeout(() => {
+                axios
+                    .get("/subject?q=" + q)
+                    .then(response => {
+                        this.subjects = response.data;
+                    })
+                    .catch(err => {
+                        this.$message({
+                            message:
+                                "Sorry, there is an error getting the MARC tags.",
+                            type: "error"
+                        });
+                    });
+            }, 500);
         },
 
         saveToDatabase() {
             this.modal_loading = true;
             axios
-                .post(URL_PATH, { bib_tags: this.bib_tags })
+                .post(URL_PATH, this.form)
                 .then(response => {
                     this.modal_loading = false;
                     this.$emit("added", response.data);
@@ -131,9 +282,7 @@ export default {
             console.log("updateToDatabase");
             this.modal_loading = true;
             axios
-                .patch(URL_PATH + "/" + this.form.id, {
-                    bib_tags: this.bib_tags
-                })
+                .patch(URL_PATH + "/" + this.form.id, this.form)
                 .then(response => {
                     this.modal_loading = false;
 
@@ -161,6 +310,20 @@ export default {
         },
         marc_tags() {
             return this.p_marc_tags;
+        },
+        subjects: {
+            // getter
+            get: function() {
+                return this.search_subjects;
+            },
+            // setter
+            set: function(newValue) {
+                if (newValue) {
+                    this.search_subjects = newValue;
+                } else {
+                    this.search_subjects = this.p_subjects;
+                }
+            }
         },
         title() {
             return this.mode === MODE_CREATE ? "Add New Bib" : "Update Bib";

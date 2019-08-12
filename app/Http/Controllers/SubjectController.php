@@ -12,9 +12,20 @@ class SubjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $subjects = [];
+
+        if ($request->get('q')) {
+
+            $q = $request->get('q');
+            
+            $subjects = Subject::where('name', 'like', "%$q%")->get();
+
+            return response()->json($subjects);
+        }
+
+        return response()->json(Subject::all());
     }
 
     /**
@@ -78,7 +89,7 @@ class SubjectController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Subject $subject)
-    { 
+    {
         $success = $subject->update($request->all());
 
         return response()->json($success);
