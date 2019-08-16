@@ -97,9 +97,9 @@ export default {
                         trigger: "blur"
                     },
                     {
-                        min: 3,
-                        max: 30,
-                        message: "Name should be atleast to 3 to 30 letters",
+                        min: 1,
+                        max: 255,
+                        message: "Name should be atleast to 1 to 255 letters",
                         trigger: "blur"
                     }
                 ]

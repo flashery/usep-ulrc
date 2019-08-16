@@ -15,38 +15,19 @@
             label-width="100px"
         >
             <el-row :gutter="20">
-                <el-col v-if="mode === 'CREATE'" :span="12">
+                <el-col v-if="mode === 'CREATE'" :span="24">
                     <h5>Marc Tags</h5>
-                    <!-- <div v-for="(marc_tag, index) in marc_tags" :key="index">
-                        <el-form-item
-                            v-if="marc_tag.show_as_default"
-                            :label="marc_tag.non_marc_tag"
-                        >
-                            <el-row :gutter="20">
-                                <el-col :span="20">
-                                    <el-input v-model="form['marc_tags'][marc_tag.id]"></el-input>
-                                </el-col>
-                                <el-col :span="2">
-                                    <el-button
-                                        size="mini"
-                                        type="primary"
-                                        @click="cloneMarcTag(index,marc_tag)"
-                                        icon="el-icon-plus"
-                                    ></el-button>
-                                </el-col>
-                            </el-row>
-                        </el-form-item>
-                    </div>-->
+
                     <el-form-item
                         v-for="(marc_tag, index) in marc_tags"
                         :key="index"
                         :label="getMarcTag(marc_tag.id)"
                     >
-                        <el-row :gutter="20">
-                            <el-col :span="16">
+                        <el-row :gutter="10">
+                            <el-col :span="18">
                                 <el-input v-model="marc_tag.value"></el-input>
                             </el-col>
-                            <el-col :span="6">
+                            <el-col :span="4">
                                 <el-button-group>
                                     <el-button
                                         type="danger"
@@ -66,7 +47,7 @@
                     </el-form-item>
                 </el-col>
                 <!-- UPDATE -->
-                <el-col v-if="mode === 'UPDATE'" :span="12">
+                <el-col v-if="mode === 'UPDATE'" :span="24">
                     <h5>Marc Tags</h5>
                     <el-form-item
                         v-for="(marc_tag, index) in form.marc_tags"
@@ -74,10 +55,10 @@
                         :label="getMarcTag(marc_tag.pivot.marc_tag_id)"
                     >
                         <el-row :gutter="20">
-                            <el-col :span="16">
+                            <el-col :span="18">
                                 <el-input v-model="marc_tag.pivot.value"></el-input>
                             </el-col>
-                            <el-col :span="6">
+                            <el-col :span="4">
                                 <el-button-group>
                                     <el-button
                                         type="danger"
@@ -96,7 +77,9 @@
                         </el-row>
                     </el-form-item>
                 </el-col>
-                <el-col :span="12">
+            </el-row>
+            <el-row :gutter="20">
+                <el-col :span="24">
                     <h5>Volumes</h5>
                     <el-form-item
                         v-for="(volume, index) in form.volumes"
@@ -191,9 +174,9 @@ export default {
                         trigger: "blur"
                     },
                     {
-                        min: 3,
-                        max: 30,
-                        message: "Name should be atleast to 3 to 30 letters",
+                        min: 1,
+                        max: 255,
+                        message: "Name should be atleast to 1 to 255 letters",
                         trigger: "blur"
                     }
                 ],

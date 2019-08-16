@@ -59,7 +59,7 @@ class ReportController extends Controller
                 if ($deway_decimal >= $start && $deway_decimal <= $end) {
 
                     // Get the number of volumes of this bib
-                    $volumes += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 113);
+                    // $volumes += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 113);
                     $no_of_titles += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 115);
                 }
             }
@@ -181,12 +181,12 @@ class ReportController extends Controller
             foreach ($department->subjects as $subject) {
                 array_push($subject_ids, $subject->id);
             }
-            return Bib::with('marc_tags')->whereHas('subjects', function ($q) use ($subject_ids) {
+            return Bib::with('marc_tags', 'subjects', 'volumes')->whereHas('subjects', function ($q) use ($subject_ids) {
                 $q->whereIn('subject_id', $subject_ids);
             })->get();
         }
 
-        return Bib::with('marc_tags')->get();
+        return Bib::with('marc_tags', 'subjects', 'volumes')->get();
     }
 
     private function getSpecificMarcTag(array $marc_tags, $marc_tag)
