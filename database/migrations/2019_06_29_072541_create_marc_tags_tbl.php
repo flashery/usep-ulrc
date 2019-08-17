@@ -15,7 +15,7 @@ class CreateMarcTagsTbl extends Migration
     {
         Schema::create('marc_tags', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->integer('marc_tag');
+            $table->string('marc_tag');
             $table->string('non_marc_tag');
             $table->boolean('show_as_default');
             $table->integer('sequence_number');

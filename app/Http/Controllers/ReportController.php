@@ -50,7 +50,7 @@ class ReportController extends Controller
             $no_of_titles = 0;
             foreach ($bibs as $bib) {
                 // Get call number value
-                $value = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 114);
+                $value = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
                 // Get the deway decimal by extracting the first three characters of the Call Number value
                 $deway_decimal = (int) substr($value, 0, 3);
@@ -59,8 +59,8 @@ class ReportController extends Controller
                 if ($deway_decimal >= $start && $deway_decimal <= $end) {
 
                     // Get the number of volumes of this bib
-                    // $volumes += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 113);
-                    $no_of_titles += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 115);
+                    $volumes += sizeof($bib->volumes);
+                    $no_of_titles++;
                 }
             }
             $data_range = $range['start'] . '-' . $range['end'];
@@ -97,7 +97,7 @@ class ReportController extends Controller
 
             foreach ($bibs as $bib) {
                 // Get call number value
-                $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 114);
+                $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
                 // Get the deway decimal by extracting the first three characters of the Call Number value
                 $deway_decimal = $this->getDewayDecimal($call_number);
@@ -188,7 +188,7 @@ class ReportController extends Controller
 
         return Bib::with('marc_tags', 'subjects', 'volumes')->get();
     }
-
+    
     private function getSpecificMarcTag(array $marc_tags, $marc_tag)
     {
         foreach ($marc_tags as $marc) {

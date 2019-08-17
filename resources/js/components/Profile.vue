@@ -63,7 +63,7 @@
                                     class="el-upload el-upload--text"
                                 >
                                     <img
-                                        :src="ruleForm.image + ' profile' | noImage"
+                                        :src="ruleForm.image | noImage"
                                         class="avatar"
                                         @click="openFile()"
                                     >

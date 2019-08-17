@@ -10,7 +10,7 @@
       aria-haspopup="true"
       aria-expanded="false"
     >
-      <img :src="user.image + ' avatar' | noImage" class="avatar">
+      <img :src="user.image | noImage" class="avatar">
     </a>
     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
       <a class="dropdown-item" href="/search">Search</a>

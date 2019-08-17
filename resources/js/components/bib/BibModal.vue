@@ -4,9 +4,9 @@
         :visible.sync="show_bib_modal"
         :before-close="handleClose"
         width="60%"
-        v-loading="modal_loading"
     >
         <el-form
+            v-loading="modal_loading"
             v-if="authenticated"
             :model="form"
             :rules="rules"
@@ -113,25 +113,18 @@
                             multiple
                             filterable
                             remote
-                            reserve-keyword
                             placeholder="Please enter the name of a subject"
                             :remote-method="searchSubject"
                             :v-loading="loading"
-                            value-key="id"
                             v-model="form.subjects"
                         >
                             <el-option
                                 v-for="(subject,i) in subjects"
-                                :key="subject.name+'-'+i"
+                                :key="i"
                                 :label="subject.name"
-                                :value="subject"
+                                :value="subject.id"
                             ></el-option>
                         </el-select>
-                        <!-- <el-tag
-                            v-for="(subject,index) in form.subjects"
-                            :key="subject.name+'-'+index"
-                            closable
-                        >{{subject.name}}</el-tag>-->
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -156,9 +149,9 @@ export default {
             uploading: false,
             bib_subjects: [],
             bib_volumes: [],
+            subjects: [],
             bib_tags: [],
             parsed: "",
-            search_subjects: [],
             rules: {
                 departments: [
                     {
@@ -192,6 +185,9 @@ export default {
         };
     },
     methods: {
+        setSubjects(subjects) {
+            this.subjects = subjects;
+        },
         handleClose() {
             this.$emit("close");
         },
@@ -199,7 +195,7 @@ export default {
             let tag = this.marc_tags.find(temp => {
                 return id === temp.id;
             });
-            console.log(tag);
+
             return tag.non_marc_tag;
         },
         submit() {
@@ -279,6 +275,7 @@ export default {
                     });
                 })
                 .catch(err => {
+                    console.log(err);
                     this.modal_loading = false;
 
                     this.$message({
@@ -295,20 +292,7 @@ export default {
         marc_tags() {
             return this.p_marc_tags;
         },
-        subjects: {
-            // getter
-            get: function() {
-                return this.search_subjects;
-            },
-            // setter
-            set: function(newValue) {
-                if (newValue) {
-                    this.search_subjects = newValue;
-                } else {
-                    this.search_subjects = this.p_subjects;
-                }
-            }
-        },
+
         title() {
             return this.mode === MODE_CREATE ? "Add New Bib" : "Update Bib";
         },
