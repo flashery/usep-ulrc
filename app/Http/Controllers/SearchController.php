@@ -13,7 +13,7 @@ class SearchController extends Controller
 
         if ($request->ajax()) {
 
-            $bibs = Bib::with('marc_tags')->whereHas('marc_tags',  function ($q) use ($keyword) {
+            $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->whereHas('marc_tags',  function ($q) use ($keyword) {
                 $q->where('value', 'LIKE', '%' . $keyword . '%');
             })->get();
 

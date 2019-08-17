@@ -9,11 +9,10 @@
         <!-- For view only -->
         <table class="table">
             <tbody>
-                <tr v-for="(marc_tag, index) in marc_tags" :key="index">
+                <tr v-for="(marc_tag, index) in bib.marc_tags" :key="index">
                     <td>{{marc_tag.non_marc_tag}}</td>
-                    <td>{{bib['marc_tags'][marc_tag.id]}}</td>
+                    <td>{{marc_tag.pivot.value}}</td>
                 </tr>
-                
             </tbody>
         </table>
     </el-dialog>

@@ -59,19 +59,21 @@
                     <tbody>
                         <tr v-for="(bib, index) in bibs" :key="index">
                             <th>{{index}}</th>
-                            <td>{{getSpecificTag(bib.marc_tags,'Call Number')}}</td>
+                            <td>{{getSpecificTag(bib.marc_tags,'082')}}</td>
                             <td>
                                 <a
                                     href="javascript:void(0)"
                                     @click="setUpBibData(bib)"
-                                >{{getSpecificTag(bib.marc_tags,'Title')}}</a>
+                                >{{getSpecificTag(bib.marc_tags,'245')}}</a>
                             </td>
                         </tr>
+                        
                     </tbody>
                 </table>
             </div>
         </div>
         <bib-modal
+            ref="bib_modal"
             @added="bibAdded"
             @updated="bibUpdated"
             @close="show_bib_modal = false"
@@ -81,6 +83,7 @@
             :show_bib_modal="show_bib_modal"
         ></bib-modal>
         <view-bib-modal
+            ref="view_bib_modal"
             @close="show_view_bib_modal = false"
             :p_bib="current_bib"
             :p_marc_tags="marc_tags"
@@ -132,7 +135,7 @@ export default {
         getSpecificTag(marc_tags, col) {
             let marc_tag = {};
             marc_tag = marc_tags.filter(marc_tag => {
-                if (marc_tag.non_marc_tag === col) return true;
+                if (marc_tag.marc_tag === col) return true;
             });
 
             if (marc_tag.length === 0) return "";
@@ -187,53 +190,42 @@ export default {
             this.search(this.keyword);
         },
         setUpBibData(bib) {
+            this.current_bib.id = bib.id;
+            this.current_bib.volumes = bib.volumes;
+            this.current_bib.subjects = bib.subjects.map(subject => {
+                return subject.id;
+            });
+            this.current_bib.marc_tags = bib.marc_tags;
+
+            if (this.authenticated) {
+                this.editBib();
+            } else {
+                this.show_view_bib_modal = true;
+            }
+        },
+        editBib() {
+            this.mode = MODE_UPDATE;
+            this.show_bib_modal = true;
+        },
+        // MARC TAG
+        getMarcTags() {
             axios
                 .get("/marc-tag")
                 .then(response => {
-                    console.log(bib.id);
                     this.marc_tags = response.data;
-                    this.current_bib["id"] = bib.id;
-
-                    bib.marc_tags.forEach(marc_tag => {
-                        let tag = this.marc_tags.find(temp => {
-                            return marc_tag.id === temp.id;
-                        });
-
-                        if (tag) {
-                            this.marc_tags[
-                                this.marc_tags.indexOf(tag)
-                            ] = marc_tag;
-
-                            this.current_bib["marc_tags"][marc_tag.id] =
-                                marc_tag.pivot.value;
-                        } else {
-                            this.current_bib["marc_tags"][marc_tag.id] = "";
-                        }
-                    });
-
-                    if (this.authenticated) {
-                        this.editBib();
-                    } else {
-                        this.show_view_bib_modal = true;
-                    }
                 })
                 .catch(err => {
-                    console.log(err);
-
                     this.$message({
                         message:
                             "Sorry, there is an error getting the MARC tags.",
                         type: "error"
                     });
                 });
-        },
-        editBib() {
-            this.mode = MODE_UPDATE;
-            this.show_bib_modal = true;
         }
     },
     mounted() {
         this.getSearchHistories();
+        this.getMarcTags();
     }
 };
 </script>
