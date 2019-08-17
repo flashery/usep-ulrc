@@ -17,6 +17,7 @@
                 <el-select
                     v-model="form.department"
                     placeholder="Select departments"
+                    value-key="id"
                 >
                     <el-option
                         v-for="(department, index) in departments"
