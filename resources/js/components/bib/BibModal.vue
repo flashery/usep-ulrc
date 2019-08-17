@@ -113,6 +113,7 @@
                             multiple
                             filterable
                             remote
+                            reserve-keyword
                             placeholder="Please enter the name of a subject"
                             :remote-method="searchSubject"
                             :v-loading="loading"

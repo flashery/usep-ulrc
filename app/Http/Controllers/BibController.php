@@ -151,10 +151,9 @@ class BibController extends Controller
             if (!isset($volume['id'])) {
                 $volume['id'] = $bib->volumes()->max('id') + 1;
             }
-            $bib->volumes()->updateOrCreate(['id' => $volume['id']], $volume);
+            $volume = $bib->volumes()->updateOrCreate(['id' => $volume['id']], $volume);
             array_push($volume_ids, $volume['id']);
         }
-        
         $bib->bib_marc_tags()->whereNotIn('id', $bib_tag_ids)->delete();
         $bib->volumes()->whereNotIn('id', $volume_ids)->delete();
         $bib->subjects()->sync($bib_subjects);

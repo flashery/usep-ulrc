@@ -106,7 +106,7 @@ class ReportController extends Controller
                 if ($deway_decimal >= $start && $deway_decimal <= $end) {
 
                     // Get the number of volumes of this bib
-                    $volumes += $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 113);
+                    $volumes += sizeof($bib->volumes);
                 }
             }
             $data_range = $range['start'] . '-' . $range['end'];
