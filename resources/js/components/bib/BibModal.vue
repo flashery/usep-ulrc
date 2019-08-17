@@ -12,7 +12,7 @@
             :rules="rules"
             ref="course_form"
             label-position="left"
-           label-width="200px"
+            label-width="200px"
         >
             <el-row :gutter="20">
                 <el-col v-if="mode === 'CREATE'" :span="24">
@@ -78,6 +78,7 @@
                     </el-form-item>
                 </el-col>
             </el-row>
+            <hr />
             <el-row :gutter="20">
                 <el-col :span="24">
                     <h5>Volumes</h5>

@@ -65,7 +65,7 @@ class BibController extends Controller
             if (!$subject) {
                 unset($subjects[$index]);
             } else {
-                $bib_subjects[] = $subject;
+                $bib_subjects[] = $subject['id'];
             }
         }
 
