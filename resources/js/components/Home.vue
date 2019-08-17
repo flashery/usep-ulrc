@@ -2,7 +2,7 @@
     <div v-loading="loading" class="row justify-content-center">
         <div class="jumbotron">
             <h1 class="display-4">Welcome to the</h1>
-            <h1 class="display-4">University Resource Learning Center</h1>
+            <h1 class="display-4">University Learning Resource Center</h1>
             <hr class="my-4" />
             <p class="lead">Please click on one of the program that you are interested in below.</p>
         </div>
