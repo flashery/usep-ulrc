@@ -14,6 +14,8 @@ class ReportController extends Controller
 
         if ($request->ajax()) {
 
+            $not_used = $this->collectionNotUsed();
+
             if ($request->get('type') === 'collection_per_college') {
                 $reports = $this->collectionPerCollege($request->all());
             } else if ($request->get('type') === 'collection_each_year') {
@@ -22,7 +24,7 @@ class ReportController extends Controller
                 $reports = $this->generalReports($request->all());
             }
 
-            return response()->json($reports);
+            return response()->json(['reports' => $reports, 'not_used' => $not_used]);
         }
 
         return view('reports');
@@ -145,8 +147,72 @@ class ReportController extends Controller
                 $reports[$year]['volumes'] = $last_volume + $volume;
             }
         }
-        // sorts reportss in ascending order, according to the key
+        // sorts reportss in ascending order, base on the key
         ksort($reports);
+
+        return $reports;
+    }
+
+    private function collectionNotUsed()
+    {
+        $bibs = [];
+
+        $bibs = $this->getBibs();
+
+        if (sizeof($bibs) === 0) return [];
+
+        $deway_decimals_ranges = $this->generateRanges();
+        $reports = [];
+
+        $volumes = 0;
+        $no_of_titles = 0;
+        $departments = Department::all();
+
+        $department_names = [];
+        foreach ($departments as $department) {
+            array_push($department_names, $department->name);
+        }
+
+        foreach ($deway_decimals_ranges as $range) {
+            $start = (int)  $range['start'];
+            $end = (int) $range['end'];
+
+            $views = [];
+            foreach ($bibs as $bib) {
+                foreach ($bib->subjects as $subject) {
+                    $data = [];
+                    $department = $subject->course->department;
+
+                    // Get call number value
+                    $value = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
+
+                    // Get the deway decimal by extracting the first three characters of the Call Number value
+                    $deway_decimal = (int) substr($value, 0, 3);
+
+                    // Compare value if the same as the current index number
+                    if ($deway_decimal >= $start && $deway_decimal <= $end) {
+                        foreach ($department_names as $department_name) {
+                            if($department->name === $department_name){
+                                $data[$department_name] = sizeof($bib->volumes) + 1;
+                            } else {
+                                $data[$department_name] = 0;
+                            }
+                        }
+                        
+                        array_push($department_names, $department->name);
+                    }
+
+                    array_push($views, $data);
+                }
+            }
+
+
+            $data_range = $range['start'] . '-' . $range['end'];
+            $key_value =  [
+                $data_range => $views
+            ];
+            array_push($reports, $key_value);
+        }
 
         return $reports;
     }
@@ -173,7 +239,7 @@ class ReportController extends Controller
         return $data;
     }
 
-    private function getBibs($request_data)
+    private function getBibs($request_data = null)
     {
         if (isset($request_data['department_id'])) {
             $department = Department::whereId($request_data['department_id'])->with('subjects')->first();
@@ -188,7 +254,7 @@ class ReportController extends Controller
 
         return Bib::with('marc_tags', 'subjects', 'volumes')->get();
     }
-    
+
     private function getSpecificMarcTag(array $marc_tags, $marc_tag)
     {
         foreach ($marc_tags as $marc) {

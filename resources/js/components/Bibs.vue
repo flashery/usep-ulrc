@@ -132,9 +132,7 @@ export default {
             let marc_tag = {};
 
             marc_tag = marc_tags.filter(marc_tag => {
-                
                 if (marc_tag.marc_tag === col) return true;
-
             });
             if (marc_tag.length === 0) return "";
 
@@ -158,7 +156,9 @@ export default {
         addNewBib() {
             this.current_bib = {
                 id: 0,
-                marc_tags: this.marc_tags,
+                marc_tags: this.marc_tags.filter(marc_tag => {
+                    return marc_tag.show_as_default === true;
+                }),
                 volumes: [],
                 subjects: []
             };
@@ -173,7 +173,11 @@ export default {
             this.current_bib.subjects = bib.subjects.map(subject => {
                 return subject.id;
             });
-            this.current_bib.marc_tags = bib.marc_tags;
+
+            this.current_bib.marc_tags = bib.marc_tags.map(marc_tag => {
+                marc_tag["value"] = marc_tag.pivot.value;
+                return marc_tag;
+            });
 
             this.mode = MODE_UPDATE;
             this.show_bib_modal = true;

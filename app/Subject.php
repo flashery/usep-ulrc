@@ -12,4 +12,14 @@ class Subject extends Model
     {
         return $this->belongsTo(Course::class);
     }
+
+    public function courses()
+    {
+        return $this->hasMany(Course::class);
+    }
+
+    public function bibs()
+    {
+        return $this->hasMany(Bib::class);
+    }
 }

@@ -26,23 +26,14 @@ class BibController extends Controller
      */
     public function index(Request $request)
     {
-        $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->limit(5)->get();
-        // dd($bibs);
         if ($request->ajax()) {
+
+            $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->limit(5)->get();
+
             return response()->json($bibs);
         }
 
         return view('bibs');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -133,19 +124,18 @@ class BibController extends Controller
         foreach ($bib_tags as $bib_tag) {
             if (!isset($bib_tag['id'])) {
                 $bib_tag = $bib->bib_marc_tags()->create([
-                    'marc_tag_id' => $bib_tag['pivot']['marc_tag_id'],
-                    'value' => $bib_tag['pivot']['value'],
+                    'marc_tag_id' => $bib_tag['marc_tag_id'],
+                    'value' => $bib_tag['value'],
                 ]);
             } else {
                 $bib_tag =  $bib->bib_marc_tags()->create([
-                    'marc_tag_id' => $bib_tag['pivot']['marc_tag_id'],
-                    'value' => $bib_tag['pivot']['value'],
+                    'marc_tag_id' => $bib_tag['marc_tag_id'],
+                    'value' => $bib_tag['value'],
                 ]);
             }
 
             array_push($bib_tag_ids, $bib_tag['id']);
         }
-
 
         foreach ($volumes as $volume) {
             if (!isset($volume['id'])) {

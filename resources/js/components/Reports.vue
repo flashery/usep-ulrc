@@ -232,7 +232,7 @@ export default {
             axios
                 .get("/reports")
                 .then(response => {
-                    this.all_collection.reports = response.data;
+                    this.all_collection.reports = response.data.reports;
                     this.formatReports(this.all_collection);
 
                     this.all_collection.load = false;
@@ -240,6 +240,7 @@ export default {
                     this.getGeneralReportsByCollege();
                 })
                 .catch(err => {
+                    console.log(err);
                     this.loading = false;
 
                     this.$message({
@@ -265,7 +266,7 @@ export default {
                         this.all_collection_per_college.department.id
                 )
                 .then(response => {
-                    this.all_collection_per_college.reports = response.data;
+                    this.all_collection_per_college.reports = response.data.reports;
                     this.formatReports(this.all_collection_per_college);
 
                     this.all_collection_per_college.load = false;
@@ -273,6 +274,7 @@ export default {
                     this.getCollectionPerCollege();
                 })
                 .catch(err => {
+                    console.log(err);
                     this.loading = false;
 
                     this.$message({
@@ -299,7 +301,7 @@ export default {
                         "&type=collection_per_college"
                 )
                 .then(response => {
-                    this.collection_per_college.reports = response.data;
+                    this.collection_per_college.reports = response.data.reports;
                     this.formatReports(this.collection_per_college);
 
                     this.collection_per_college.load = false;
@@ -307,6 +309,7 @@ export default {
                     this.getCollectionEachYear();
                 })
                 .catch(err => {
+                    console.log(err);
                     this.loading = false;
 
                     this.$message({
@@ -334,7 +337,7 @@ export default {
                         "&type=collection_each_year"
                 )
                 .then(response => {
-                    this.collection_each_year.reports = response.data;
+                    this.collection_each_year.reports = response.data.reports;
                     this.formatCollectionEachYear(this.collection_each_year);
 
                     this.collection_each_year.load = false;

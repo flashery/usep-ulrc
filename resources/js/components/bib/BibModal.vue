@@ -17,13 +17,60 @@
             <el-row :gutter="20">
                 <el-col v-if="mode === 'CREATE'" :span="24">
                     <h5>Marc Tags</h5>
-
+                    <div v-for="(marc_tag, index) in form.marc_tags" :key="index">
+                        <el-form-item
+                            v-if="marc_tag.show_as_default"
+                            :label="getMarcTag(marc_tag.id)"
+                        >
+                            <el-row :gutter="20">
+                                <el-col :span="18">
+                                    <el-input v-model="marc_tag.value"></el-input>
+                                </el-col>
+                                <el-col :span="4">
+                                    <el-button-group>
+                                        <el-button
+                                            type="danger"
+                                            size="mini"
+                                            icon="el-icon-delete"
+                                            @click="deleteMarcTag(marc_tag)"
+                                        ></el-button>
+                                        <el-button
+                                            size="mini"
+                                            type="primary"
+                                            @click="cloneMarcTag(index,marc_tag)"
+                                            icon="el-icon-plus"
+                                        ></el-button>
+                                    </el-button-group>
+                                </el-col>
+                            </el-row>
+                        </el-form-item>
+                    </div>
+                    <div>
+                        <el-form-item label="Search marc tag">
+                            <el-row :gutter="20">
+                                <el-col :span="22">
+                                    <el-autocomplete
+                                        style="width:81%"
+                                        v-model="search_marc_tag"
+                                        :fetch-suggestions="querySearchAsync"
+                                        placeholder="Search for marc tag or non marc tag"
+                                        @select="handleSelect"
+                                        value-key="non_marc_tag"
+                                    ></el-autocomplete>
+                                </el-col>
+                            </el-row>
+                        </el-form-item>
+                    </div>
+                </el-col>
+                <!-- UPDATE -->
+                <el-col v-if="mode === 'UPDATE'" :span="24">
+                    <h5>Marc Tags</h5>
                     <el-form-item
-                        v-for="(marc_tag, index) in marc_tags"
+                        v-for="(marc_tag, index) in form.marc_tags"
                         :key="index"
                         :label="getMarcTag(marc_tag.id)"
                     >
-                        <el-row :gutter="10">
+                        <el-row :gutter="20">
                             <el-col :span="18">
                                 <el-input v-model="marc_tag.value"></el-input>
                             </el-col>
@@ -45,34 +92,17 @@
                             </el-col>
                         </el-row>
                     </el-form-item>
-                </el-col>
-                <!-- UPDATE -->
-                <el-col v-if="mode === 'UPDATE'" :span="24">
-                    <h5>Marc Tags</h5>
-                    <el-form-item
-                        v-for="(marc_tag, index) in form.marc_tags"
-                        :key="index"
-                        :label="getMarcTag(marc_tag.pivot.marc_tag_id)"
-                    >
+                    <el-form-item label="Search marc tag">
                         <el-row :gutter="20">
-                            <el-col :span="18">
-                                <el-input v-model="marc_tag.pivot.value"></el-input>
-                            </el-col>
-                            <el-col :span="4">
-                                <el-button-group>
-                                    <el-button
-                                        type="danger"
-                                        size="mini"
-                                        icon="el-icon-delete"
-                                        @click="deleteMarcTag(marc_tag)"
-                                    ></el-button>
-                                    <el-button
-                                        size="mini"
-                                        type="primary"
-                                        @click="cloneMarcTag(index,marc_tag)"
-                                        icon="el-icon-plus"
-                                    ></el-button>
-                                </el-button-group>
+                            <el-col :span="22">
+                                <el-autocomplete
+                                    style="width:81%"
+                                    v-model="search_marc_tag"
+                                    :fetch-suggestions="querySearchAsync"
+                                    placeholder="Search for marc tag or non marc tag"
+                                    @select="handleSelect"
+                                    value-key="non_marc_tag"
+                                ></el-autocomplete>
                             </el-col>
                         </el-row>
                     </el-form-item>
@@ -87,7 +117,7 @@
                         :key="volume.created_at+'-'+index"
                     >
                         <el-row :gutter="20">
-                            <el-col :span="20">
+                            <el-col :span="18">
                                 <el-input v-model="volume.label"></el-input>
                             </el-col>
                             <el-col :span="4">
@@ -107,8 +137,7 @@
                             @click="form.volumes.push({})"
                         >Add volume</el-button>
                     </el-form-item>
-                    <h5>Subjects</h5>
-                    <el-form-item>
+                    <el-form-item label="Subjects">
                         <el-select
                             multiple
                             filterable
@@ -150,6 +179,7 @@ export default {
             uploading: false,
             bib_subjects: [],
             bib_volumes: [],
+            search_marc_tag: "",
             subjects: [],
             bib_tags: [],
             parsed: "",
@@ -186,6 +216,35 @@ export default {
         };
     },
     methods: {
+        querySearchAsync(queryString, cb) {
+            var links = this.marc_tags;
+            var results = queryString
+                ? links.filter(this.createFilter(queryString))
+                : links;
+
+            clearTimeout(this.timeout);
+            this.timeout = setTimeout(() => {
+                cb(results);
+            }, 400 * Math.random());
+        },
+        createFilter(queryString) {
+            return link => {
+                return (
+                    link.marc_tag
+                        .toLowerCase()
+                        .indexOf(queryString.toLowerCase()) === 0 ||
+                    link.non_marc_tag
+                        .toLowerCase()
+                        .indexOf(queryString.toLowerCase()) === 0
+                );
+            };
+        },
+        handleSelect(marc_tag) {
+            marc_tag.show_as_default = true;
+            this.form.marc_tags.push(marc_tag);
+
+            this.search_marc_tag = "";
+        },
         setSubjects(subjects) {
             this.subjects = subjects;
         },
