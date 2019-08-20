@@ -21,7 +21,7 @@
             </div>
         </div>
         <h4 class="mb-3">Bibs</h4>
-        <table class="table">
+        <table class="table" v-loading="loading">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -54,6 +54,17 @@
                 </tr>
             </tbody>
         </table>
+        <div>
+            <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="updateBibLists"
+                layout="prev,pager,next"
+                :pager-count="5"
+                background
+                :current-page.sync="pagination.current_page"
+                :total="pagination.total"
+            ></el-pagination>
+        </div>
         <!-- <el-table :data="bibs">
             <el-table-column type="expand">
                 <template slot-scope="props">
@@ -104,6 +115,7 @@ export default {
     components: { BibModal, MarcTagModal, ViewMarcTags },
     data() {
         return {
+            loading: false,
             show_bib_modal: false,
             show_marc_tag_modal: false,
             show_view_marc_tags_modal: false,
@@ -116,7 +128,8 @@ export default {
             },
             bibs: [],
             marc_tags: [],
-            subjects: []
+            subjects: [],
+            pagination: {}
         };
     },
 
@@ -140,12 +153,16 @@ export default {
         },
         // Bib
         getBibs() {
+            this.loading = true;
             axios
-                .get("/bib")
+                .get("/bib?page=" + 1)
                 .then(response => {
-                    this.bibs = response.data;
+                    this.bibs = response.data.data;
+                    this.makePagination(response.data);
+                    this.loading = false;
                 })
                 .catch(err => {
+                    console.log(err);
                     this.$message({
                         message:
                             "Sorry, there is an error getting the MARC tags.",
@@ -265,7 +282,44 @@ export default {
         },
         viewMarcTags() {
             this.show_view_marc_tags_modal = true;
-        }
+        },
+        /* ======================================================== *
+         * Pagination
+         * ======================================================== */
+        // Triggers whenever there are changes in the current page
+        updateBibLists(val) {
+            this.loading = true;
+            axios
+                .get("/bib?page=" + val)
+                .then(response => {
+                    this.bibs = response.data.data;
+                    this.makePagination(response.data);
+                    this.loading = false;
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.$message({
+                        message:
+                            "Sorry, there is an error getting the MARC tags.",
+                        type: "error"
+                    });
+                });
+        },
+        // Creates pagination
+        makePagination(data) {
+            this.pagination = {
+                current_page: data.current_page,
+                last_page: data.last_page,
+                next_page_url: data.next_page_url,
+                prev_page_url: data.prev_page_url,
+                per_page: data.per_page,
+                total: data.total,
+                to: data.to,
+                from: data.from
+            };
+        },
+        // Triggers whenever there is a change in page size
+        handleSizeChange(val) {}
     }
 };
 </script>

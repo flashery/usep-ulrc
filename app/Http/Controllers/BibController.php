@@ -28,7 +28,7 @@ class BibController extends Controller
     {
         if ($request->ajax()) {
 
-            $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->limit(5)->get();
+            $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->paginate(10);
 
             return response()->json($bibs);
         }
