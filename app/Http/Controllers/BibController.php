@@ -129,7 +129,7 @@ class BibController extends Controller
                 ]);
             } else {
                 $bib_tag =  $bib->bib_marc_tags()->create([
-                    'marc_tag_id' => $bib_tag['marc_tag_id'],
+                    'marc_tag_id' => $bib_tag['id'],
                     'value' => $bib_tag['value'],
                 ]);
             }
