@@ -192,8 +192,16 @@ export default {
             });
 
             this.current_bib.marc_tags = bib.marc_tags.map(marc_tag => {
-                marc_tag["value"] = marc_tag.pivot.value;
-                return marc_tag;
+                let data = {
+                    id: marc_tag.id,
+                    marc_tag: marc_tag.marc_tag,
+                    non_marc_tag: marc_tag.non_marc_tag,
+                    show_as_default: marc_tag.show_as_default,
+                    marc_tag: marc_tag.marc_tag,
+                    marc_tag: marc_tag.marc_tag,
+                    value: marc_tag.pivot.value
+                };
+                return data;
             });
 
             this.mode = MODE_UPDATE;

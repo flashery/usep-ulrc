@@ -241,7 +241,20 @@ export default {
         },
         handleSelect(marc_tag) {
             marc_tag.show_as_default = true;
-            this.form.marc_tags.push(marc_tag);
+            let data = JSON.parse(JSON.stringify(marc_tag)); // Copy only properties of the object not the whole object it self.
+
+            // Find the index on where to put this new object in form.marc_tags array
+            let index = this.form.marc_tags.indexOf(
+                this.form.marc_tags.find(tag => {
+                    return tag.id === marc_tag.id;
+                })
+            );
+
+            // When the object is not found on form.marc_tags array
+            // put the object on the very last position in the array
+            index = index === -1 ? this.form.marc_tags.length + 1 : index + 1;
+
+            this.form.marc_tags.splice(index, 0, data);
 
             this.search_marc_tag = "";
         },
