@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Bib;
+use App\Course;
 use App\Department;
 use Carbon\Carbon;
 
@@ -11,17 +12,22 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        $reports = [];
+        $per_year = [];
+        $not_used = [];
 
         if ($request->ajax()) {
 
-            $not_used = $this->collectionNotUsed();
-
             if ($request->get('type') === 'collection_per_college') {
                 $reports = $this->collectionPerCollege($request->all());
-            } else if ($request->get('type') === 'collection_each_year') {
-                $reports = $this->collectionEachYear($request->all());
+            } else if ($request->get('type') === 'collection_per_year') {
+                $reports = $this->collectionPerYear($request->all());
+            } else if ($request->get('type') === 'all_collection_per_college') {
+                $reports = $this->allCollectionPerCollege($request->all());
             } else {
                 $reports = $this->generalReports($request->all());
+
+                $not_used = $this->collectionNotUsed();
             }
 
             return response()->json(['reports' => $reports, 'not_used' => $not_used]);
@@ -52,10 +58,10 @@ class ReportController extends Controller
             $no_of_titles = 0;
             foreach ($bibs as $bib) {
                 // Get call number value
-                $value = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
+                $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
                 // Get the deway decimal by extracting the first three characters of the Call Number value
-                $deway_decimal = (int) substr($value, 0, 3);
+                $deway_decimal =  $this->getDewayDecimal($call_number);
 
                 // Compare value if the same as the current index number
                 if ($deway_decimal >= $start && $deway_decimal <= $end) {
@@ -86,44 +92,36 @@ class ReportController extends Controller
 
         if (sizeof($bibs) === 0) return [];
 
-        $deway_decimals_ranges = $this->generateRanges();
         $reports = [];
+        foreach ($bibs as $bib) {
 
-        $volumes = 0;
+            $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
+            $date_of_publication = $this->extractDateOfPub($call_number);
+            $volume =  sizeof($bib->volumes);
+            $no_of_titles = 1;
 
-        foreach ($deway_decimals_ranges as $range) {
-            $start = (int)  $range['start'];
-            $end = (int) $range['end'];
+            if (!array_key_exists($date_of_publication, $reports)) {
+                $reports[$date_of_publication]['volumes'] = $volume;
+                $reports[$date_of_publication]['no_of_titles'] = $no_of_titles;
+            } else {
+                $last_volume = 0;
+                $last_volume = $reports[$date_of_publication]['volumes'];
+                $reports[$date_of_publication]['volumes'] = $last_volume;
+                $reports[$date_of_publication]['volumes'] = $last_volume + $volume;
 
-            $volumes = 0;
-
-            foreach ($bibs as $bib) {
-                // Get call number value
-                $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
-
-                // Get the deway decimal by extracting the first three characters of the Call Number value
-                $deway_decimal = $this->getDewayDecimal($call_number);
-
-                // Compare value if the same as the current index number
-                if ($deway_decimal >= $start && $deway_decimal <= $end) {
-
-                    // Get the number of volumes of this bib
-                    $volumes += sizeof($bib->volumes);
-                }
+                $last_no_of_titles = 0;
+                $last_no_of_titles = $reports[$date_of_publication]['no_of_titles'];
+                $reports[$date_of_publication]['no_of_titles'] = $last_no_of_titles;
+                $reports[$date_of_publication]['no_of_titles'] = $last_no_of_titles + $no_of_titles;
             }
-            $data_range = $range['start'] . '-' . $range['end'];
-            $key_value =  [
-                $data_range => [
-                    'volumes' => $volumes,
-                ]
-            ];
-            array_push($reports, $key_value);
         }
+        // sorts reportss in ascending order, base on the key
+        ksort($reports);
 
         return $reports;
     }
 
-    private function collectionEachYear($request_data)
+    private function collectionPerYear($request_data)
     {
         $bibs = [];
 
@@ -133,18 +131,25 @@ class ReportController extends Controller
 
         $reports = [];
         foreach ($bibs as $bib) {
-            $date_of_publication = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 116);
-            $year = Carbon::parse($date_of_publication)->format('Y');
-            $volume = (int) $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), 113);
 
-            if (!array_key_exists($year, $reports)) {
-                $reports[$year] = ['volumes' => $volume];
-                // array_push($reports, $key_value);
+            $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
+            $date_of_publication = $this->extractDateOfPub($call_number);
+            $volume =  sizeof($bib->volumes);
+            $no_of_titles = 1;
+
+            if (!array_key_exists($date_of_publication, $reports)) {
+                $reports[$date_of_publication]['volumes'] = $volume;
+                $reports[$date_of_publication]['no_of_titles'] = $no_of_titles;
             } else {
                 $last_volume = 0;
-                $last_volume = $reports[$year]['volumes'];
-                $reports[$year]['volumes'] = $last_volume;
-                $reports[$year]['volumes'] = $last_volume + $volume;
+                $last_volume = $reports[$date_of_publication]['volumes'];
+                $reports[$date_of_publication]['volumes'] = $last_volume;
+                $reports[$date_of_publication]['volumes'] = $last_volume + $volume;
+
+                $last_no_of_titles = 0;
+                $last_no_of_titles = $reports[$date_of_publication]['no_of_titles'];
+                $reports[$date_of_publication]['no_of_titles'] = $last_no_of_titles;
+                $reports[$date_of_publication]['no_of_titles'] = $last_no_of_titles + $no_of_titles;
             }
         }
         // sorts reportss in ascending order, base on the key
@@ -152,6 +157,48 @@ class ReportController extends Controller
 
         return $reports;
     }
+
+    private function allCollectionPerCollege($request_data)
+    {
+        $course_id = $request_data['course_id'];
+
+        $course = Course::with('subjects.bibs')->where('id', $course_id)->first();
+        $subject_ids = [];
+        foreach ($course->subjects as $subject) {
+            array_push($subject_ids, $subject->id);
+        }
+
+        if (sizeof($course->subjects) === 0) return [];
+
+        $reports = [];
+
+        foreach ($course->subjects as $subject) {
+            foreach ($subject->bibs as $bib) {
+                $volume =  sizeof($bib->volumes);
+                $no_of_titles = 1;
+
+                if (!array_key_exists($subject->name, $reports)) {
+                    $reports[$subject->name]['volumes'] = $volume;
+                    $reports[$subject->name]['no_of_titles'] = $no_of_titles;
+                } else {
+                    $last_volume = 0;
+                    $last_volume = $reports[$subject->name]['volumes'];
+                    $reports[$subject->name]['volumes'] = $last_volume;
+                    $reports[$subject->name]['volumes'] = $last_volume + $volume;
+
+                    $last_no_of_titles = 0;
+                    $last_no_of_titles = $reports[$subject->name]['no_of_titles'];
+                    $reports[$subject->name]['no_of_titles'] = $last_no_of_titles;
+                    $reports[$subject->name]['no_of_titles'] = $last_no_of_titles + $no_of_titles;
+                }
+            }
+        }
+        // sorts reportss in ascending order, base on the key
+        ksort($reports);
+
+        return $reports;
+    }
+
 
     private function collectionNotUsed()
     {
@@ -164,52 +211,57 @@ class ReportController extends Controller
         $deway_decimals_ranges = $this->generateRanges();
         $reports = [];
 
-        $volumes = 0;
-        $no_of_titles = 0;
         $departments = Department::all();
 
-        $department_names = [];
-        foreach ($departments as $department) {
-            array_push($department_names, $department->name);
-        }
-
         foreach ($deway_decimals_ranges as $range) {
+
             $start = (int)  $range['start'];
             $end = (int) $range['end'];
 
             $views = [];
+            $data = [];
             foreach ($bibs as $bib) {
-                foreach ($bib->subjects as $subject) {
-                    $data = [];
-                    $department = $subject->course->department;
 
-                    // Get call number value
-                    $value = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-                    // Get the deway decimal by extracting the first three characters of the Call Number value
-                    $deway_decimal = (int) substr($value, 0, 3);
+                // Get call number value
+                $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-                    // Compare value if the same as the current index number
-                    if ($deway_decimal >= $start && $deway_decimal <= $end) {
-                        foreach ($department_names as $department_name) {
-                            if($department->name === $department_name){
-                                $data[$department_name] = sizeof($bib->volumes) + 1;
+                // Get the deway decimal by extracting the first three characters of the Call Number value
+                $deway_decimal = $this->getDewayDecimal($call_number);
+
+                // Compare value if the same as the current index number
+                if ($deway_decimal >= $start && $deway_decimal <= $end) {
+
+
+                    foreach ($departments as $department) {
+
+                        $department_ids = [];
+
+                        foreach ($bib->subjects as $subject) {
+
+                            $subject_department = $subject->course->department;
+
+                            if (in_array($department->id, $department_ids) && $department->id === $subject_department->id) {
+
+                                $data[$department->name] += sizeof($bib->volumes);
                             } else {
-                                $data[$department_name] = 0;
+
+                                $data[$department->name] = 0;
+
+                                array_push($department_ids, $department->id);
                             }
                         }
-                        
-                        array_push($department_names, $department->name);
                     }
-
-                    array_push($views, $data);
                 }
+
+
+                array_push($views, $data);
             }
 
 
             $data_range = $range['start'] . '-' . $range['end'];
             $key_value =  [
-                $data_range => $views
+                $data_range => $data
             ];
             array_push($reports, $key_value);
         }
@@ -262,8 +314,13 @@ class ReportController extends Controller
         }
     }
 
+    private function extractDateOfPub($call_number)
+    {
+        return substr($call_number, -4, strlen($call_number));
+    }
+
     private function getDewayDecimal($call_number)
     {
-        return (int) substr($call_number, 0, 3);
+        return (int) substr($call_number, 5, 3);
     }
 }

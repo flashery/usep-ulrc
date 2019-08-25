@@ -22,10 +22,23 @@ export default {
             scales: {
                 xAxes: [
                     {
-                        barPercentage: 0.5,
                         barThickness: 15,
                         maxBarThickness: 15,
                         minBarLength: 2,
+                        gridLines: {
+                            offsetGridLines: true
+                        }
+                    }
+                ],
+                yAxes: [
+                    {
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1
+                        },
+                        barThickness: 15,
+                        maxBarThickness: 15,
+                        minBarLength: 0,
                         gridLines: {
                             offsetGridLines: true
                         }

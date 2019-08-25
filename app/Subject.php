@@ -20,6 +20,6 @@ class Subject extends Model
 
     public function bibs()
     {
-        return $this->hasMany(Bib::class);
+        return $this->belongsToMany(Bib::class, 'bib_subjects');
     }
 }

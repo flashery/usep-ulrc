@@ -31,25 +31,32 @@
             <el-select
                 @change="getGeneralReportsByCollege()"
                 v-loading="load_departments"
-                v-model="all_collection_per_college.department"
+                v-model="all_collection_per_college.course"
                 placeholder="Select"
                 value-key="id"
             >
-                <el-option
+                <div
                     v-for="department in departments"
-                    :key="department.id"
+                    :key="'department_id-'+department.id"
                     :label="department.name"
                     :value="department"
-                ></el-option>
+                >
+                    <el-option
+                        v-for="course in department.courses"
+                        :key="'course_id-'+course.id"
+                        :label="course.name"
+                        :value="course"
+                    ></el-option>
+                </div>
             </el-select>
             <bar-chart
-                v-show="all_collection_per_college.reports.length > 0"
+                v-show="all_collection_per_college.reports"
                 :key="all_collection_per_college.key"
                 :labels="all_collection_per_college.labels"
                 :datasets="all_collection_per_college.datasets"
             ></bar-chart>
             <h3
-                v-show="all_collection_per_college.reports.length === 0 && !all_collection_per_college.load"
+                v-show="!all_collection_per_college.reports && !all_collection_per_college.load"
                 class="no-search-result"
             >No reports to be displayed. Please search something.....</h3>
             <div
@@ -80,13 +87,13 @@
                 ></el-option>
             </el-select>
             <bar-chart
-                v-show="collection_per_college.reports.length > 0"
+                v-show="collection_per_college.reports"
                 :key="collection_per_college.key"
                 :labels="collection_per_college.labels"
                 :datasets="collection_per_college.datasets"
             ></bar-chart>
             <h3
-                v-show="collection_per_college.reports.length === 0 && !collection_per_college.load"
+                v-show="!collection_per_college.reports && !collection_per_college.load"
                 class="no-search-result"
             >No reports to be displayed. Please search something.....</h3>
             <div
@@ -100,35 +107,21 @@
         <!-- END COLLECTION PER COLLEGE -->
         <hr />
         <!-- START COLLECTION PER COLLEGE -->
-        <h4 class="mb-3">{{collection_each_year.title}}</h4>
+        <h4 class="mb-3">{{collection_per_year.title}}</h4>
         <div class="col-md-12">
-            <el-select
-                @change="getCollectionEachYear()"
-                v-loading="load_departments"
-                v-model="collection_each_year.department"
-                placeholder="Select"
-                value-key="id"
-            >
-                <el-option
-                    v-for="department in departments"
-                    :key="department.id"
-                    :label="department.name"
-                    :value="department"
-                ></el-option>
-            </el-select>
             <bar-chart
-                v-show="collection_each_year.reports"
-                :key="collection_each_year.key"
-                :labels="collection_each_year.labels"
-                :datasets="collection_each_year.datasets"
+                v-show="collection_per_year.reports"
+                :key="collection_per_year.key"
+                :labels="collection_per_year.labels"
+                :datasets="collection_per_year.datasets"
             ></bar-chart>
             <h3
-                v-show="!collection_each_year.reports && !collection_each_year.load"
+                v-show="!collection_per_year.reports && !collection_per_year.load"
                 class="no-search-result"
             >No reports to be displayed. Please search something.....</h3>
             <div
-                v-loading="collection_each_year.load"
-                v-show="collection_each_year.load"
+                v-loading="collection_per_year.load"
+                v-show="collection_per_year.load"
                 style="height:200px;"
             >
                 <h3 class="no-search-result">Loading results..</h3>
@@ -159,8 +152,29 @@ export default {
                 key: 0,
                 data: { volumes: [], no_of_titles: [] }
             },
+            all_collection: {
+                title: "All Collection",
+                load: false,
+                reports: [],
+                labels: [],
+                datasets: [],
+                key: 0,
+                data: { volumes: [], no_of_titles: [] }
+            },
             all_collection_per_college: {
-                title: "All Collection Per College",
+                title: "Graphical Representation Of All Collection PER College",
+                load: false,
+                course: {
+                    id: 0
+                },
+                reports: [],
+                labels: [],
+                key: 0,
+                datasets: [],
+                data: { volumes: [], no_of_titles: [] }
+            },
+            collection_per_college: {
+                title: "Collection Per College by Date Of Publication",
                 load: false,
                 department: {
                     id: 0
@@ -171,8 +185,8 @@ export default {
                 datasets: [],
                 data: { volumes: [], no_of_titles: [] }
             },
-            collection_per_college: {
-                title: "Collection Per College",
+            collection_per_year: {
+                title: "Collection by Date Of Publication",
                 load: false,
                 department: {
                     id: 0
@@ -181,19 +195,7 @@ export default {
                 labels: [],
                 key: 0,
                 datasets: [],
-                data: { volumes: [] }
-            },
-            collection_each_year: {
-                title: "Collection Each Year",
-                load: false,
-                department: {
-                    id: 0
-                },
-                reports: [],
-                labels: [],
-                key: 0,
-                datasets: [],
-                data: { volumes: [] }
+                data: { volumes: [], no_of_titles: [] }
             }
         };
     },
@@ -212,17 +214,22 @@ export default {
                 .then(response => {
                     this.load_departments = false;
                     this.departments = response.data;
-                    this.all_collection_per_college.department.id = this.departments[0].id;
+                    this.all_collection_per_college.course.id = this.departments[0].courses[0].id;
                     this.collection_per_college.department.id = this.departments[0].id;
-                    this.collection_each_year.department.id = this.departments[0].id;
+                    this.collection_per_year.department.id = this.departments[0].id;
+
                     this.getGeneralReports();
+                    this.getGeneralReportsByCollege();
+                    this.getCollectionPerCollege();
+                    this.getCollectionPerYear();
                 })
                 .catch(err => {
+                    console.log(err)
                     this.loading = false;
 
                     this.$message({
                         message:
-                            "Oops, there is an error updating user profile image.",
+                            "Sorry, there is an error getting all departments.",
                         type: "error"
                     });
                 });
@@ -237,7 +244,6 @@ export default {
 
                     this.all_collection.load = false;
                     this.all_collection.key = this.generateKey();
-                    this.getGeneralReportsByCollege();
                 })
                 .catch(err => {
                     console.log(err);
@@ -245,7 +251,7 @@ export default {
 
                     this.$message({
                         message:
-                            "Oops, there is an error updating user profile image.",
+                            "Sorry, there is an error getting reports",
                         type: "error"
                     });
                 });
@@ -253,7 +259,6 @@ export default {
         getGeneralReportsByCollege() {
             this.all_collection_per_college.reports = [];
             this.all_collection_per_college.labels = [];
-            this.all_collection_per_college.redatasetsports = [];
             this.all_collection_per_college.data = {
                 volumes: [],
                 no_of_titles: []
@@ -262,16 +267,18 @@ export default {
             this.all_collection_per_college.load = true;
             axios
                 .get(
-                    "/reports?department_id=" +
-                        this.all_collection_per_college.department.id
+                    "/reports?type=all_collection_per_college&course_id=" +
+                        this.all_collection_per_college.course.id
                 )
                 .then(response => {
-                    this.all_collection_per_college.reports = response.data.reports;
-                    this.formatReports(this.all_collection_per_college);
+                    this.all_collection_per_college.reports =
+                        response.data.reports;
+                    this.formatAllCollectionPerCollege(
+                        this.all_collection_per_college
+                    );
 
                     this.all_collection_per_college.load = false;
                     this.all_collection_per_college.key = this.generateKey();
-                    this.getCollectionPerCollege();
                 })
                 .catch(err => {
                     console.log(err);
@@ -288,9 +295,9 @@ export default {
         getCollectionPerCollege() {
             this.collection_per_college.reports = [];
             this.collection_per_college.labels = [];
-            this.collection_per_college.redatasetsports = [];
             this.collection_per_college.data = {
-                volumes: []
+                volumes: [],
+                no_of_titles: []
             };
 
             this.collection_per_college.load = true;
@@ -302,11 +309,10 @@ export default {
                 )
                 .then(response => {
                     this.collection_per_college.reports = response.data.reports;
-                    this.formatReports(this.collection_per_college);
+                    this.formatCollectionPerYear(this.collection_per_college);
 
                     this.collection_per_college.load = false;
                     this.collection_per_college.key = this.generateKey();
-                    this.getCollectionEachYear();
                 })
                 .catch(err => {
                     console.log(err);
@@ -320,28 +326,24 @@ export default {
                 });
         },
 
-        getCollectionEachYear() {
-            this.collection_each_year.reports = [];
-            this.collection_each_year.labels = [];
-            this.collection_each_year.redatasetsports = [];
-            this.collection_each_year.data = {
-                volumes: []
+        getCollectionPerYear() {
+            this.collection_per_year.labels = [];
+            this.collection_per_year.reports = [];
+            this.collection_per_year.data = {
+                volumes: [],
+                no_of_titles: []
             };
 
-            this.collection_each_year.load = true;
+            this.collection_per_year.load = true;
 
             axios
-                .get(
-                    "/reports?department_id=" +
-                        this.collection_each_year.department.id +
-                        "&type=collection_each_year"
-                )
+                .get("/reports?type=collection_per_year")
                 .then(response => {
-                    this.collection_each_year.reports = response.data.reports;
-                    this.formatCollectionEachYear(this.collection_each_year);
+                    this.collection_per_year.reports = response.data.reports;
+                    this.formatCollectionPerYear(this.collection_per_year);
 
-                    this.collection_each_year.load = false;
-                    this.collection_each_year.key = this.generateKey();
+                    this.collection_per_year.load = false;
+                    this.collection_per_year.key = this.generateKey();
                 })
                 .catch(err => {
                     this.loading = false;
@@ -390,20 +392,77 @@ export default {
                 ];
             }
         },
-        formatCollectionEachYear(object) {
 
+        formatAllCollectionPerCollege(object) {
             object.labels = Object.keys(object.reports);
             object.labels.forEach(label => {
                 object.data.volumes.push(object.reports[label].volumes);
+                // If we need the number of titles
+                if (object.data.no_of_titles)
+                    object.data.no_of_titles.push(
+                        object.reports[label].no_of_titles
+                    );
             });
 
-            object.datasets = [
-                {
-                    label: "Volumes",
-                    backgroundColor: "maroon",
-                    data: object.data.volumes
-                }
-            ];
+            // If we need the number of titles
+            if (object.data.no_of_titles) {
+                object.datasets = [
+                    {
+                        label: "No. Of Titles",
+                        backgroundColor: "#e17646",
+                        data: object.data.no_of_titles
+                    },
+                    {
+                        label: "Volumes",
+                        backgroundColor: "maroon",
+                        data: object.data.volumes
+                    }
+                ];
+            } else {
+                object.datasets = [
+                    {
+                        label: "Volumes",
+                        backgroundColor: "maroon",
+                        data: object.data.volumes
+                    }
+                ];
+            }
+        },
+
+        formatCollectionPerYear(object) {
+            object.labels = Object.keys(object.reports);
+            object.labels.forEach(label => {
+                object.data.volumes.push(object.reports[label].volumes);
+                // If we need the number of titles
+                if (object.data.no_of_titles)
+                    object.data.no_of_titles.push(
+                        object.reports[label].no_of_titles
+                    );
+            });
+
+            // If we need the number of titles
+            if (object.data.no_of_titles) {
+                object.datasets = [
+                    {
+                        label: "No. Of Titles",
+                        backgroundColor: "#e17646",
+                        data: object.data.no_of_titles
+                    },
+                    {
+                        label: "Volumes",
+                        backgroundColor: "maroon",
+                        data: object.data.volumes
+                    }
+                ];
+            } else {
+                object.datasets = [
+                    {
+                        label: "Volumes",
+                        backgroundColor: "maroon",
+                        data: object.data.volumes
+                    }
+                ];
+            }
         },
         generateKey() {
             return Date.now();
