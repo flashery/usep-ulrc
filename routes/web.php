@@ -22,6 +22,7 @@ Route::get('/about', 'AboutController@index')->name('about');
 Route::get('/contact', 'ContactController@index')->name('contact');
 Route::get('/dcs', 'DcsController@index')->name('dcs');
 Route::get('/reports', 'ReportController@index')->name('report');
+Route::get('/reports/export', 'ReportController@export')->name('report');
 Route::get('/profile', 'UserController@profile')->name('profile');
 
 Route::resource('/department', 'DepartmentController');

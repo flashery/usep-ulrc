@@ -6,6 +6,11 @@
             <h1 class="h2">List of Bibs</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <el-button-group>
+                    <el-button
+                        type="primary"
+                        icon="el-icon-download"
+                        @click="export2Doc('word-doc', 'Test')"
+                    >Export</el-button>
                     <el-button type="primary" icon="el-icon-collection" @click="addNewBib">New Bib</el-button>
                     <el-button
                         type="primary"
@@ -54,6 +59,75 @@
                 </tr>
             </tbody>
         </table>
+        <div ref="word-doc" id="word-doc">
+            <div class="word-doc-area">
+                <table style="width:100%">
+                    <tr>
+                        <td style="border:none;">
+                            <img
+                                width="100"
+                                height="100"
+                                align="center"
+                                src="http://usep-urlc.herokuapp.com/images/usep-logo.png"
+                                class="logo"
+                            />
+                        </td>
+                    </tr>
+                </table>
+                <h1 align="center">University of Southeastern Philippines</h1>
+                <h3 align="center">University Learning Resource Center</h3>
+                <p align="center">BACHELOR OF SCIENCE IN __________________ As of July 2019</p>
+                <!-- <table class="table" v-loading="loading">
+                    <thead>
+                        <tr>
+                            <th scope="col">Course Code/Title</th>
+                            <th scope="col">Title Author. (year). Title. Place. Publishing</th>
+                            <th class="multi-cell" scope="col">
+                                <div class="top">Overall Collection</div>
+                                <div class="left">No. of Titles</div>
+                                <div class="left">No. of Volumes</div>
+                            </th>
+                            <th scope="col">Call Number</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(bib, index) in bibs" :key="index">
+                            <td width="20%">{{getSpecificTag(bib.marc_tags,'082')}}</td>
+                            <td>{{getSpecificTag(bib.marc_tags,'245')}}</td>
+                            <td class="multi-cell">
+                                <div class="left">No. of Titles</div>
+                                <div class="left">No. of Volumes</div>
+                            </td>
+                            <td>test2</td>
+                        </tr>
+                    </tbody>
+                </table>-->
+                <table class="table" style="width:100%;" v-loading="loading">
+                    <tr>
+                        <th rowspan="2" width="20" scope="col">Course Code/Title</th>
+                        <th
+                            rowspan="2"
+                            width="20"
+                            scope="col"
+                        >Title Author. (year). Title. Place. Publishing</th>
+                        <th colspan="2" width="220" scope="col">Overall Collection</th>
+                        <th rowspan="2" width="220" scope="col">Call Number</th>
+                    </tr>
+                    <tr>
+                        <th>No. of Titles</th>
+                        <th>No. of Volumes</th>
+                    </tr>
+                    <tr v-for="(bib, index) in bibs" :key="index">
+                        <td width="20">{{getSpecificTag(bib.marc_tags,'245')}}</td>
+                        <td width="220"></td>
+                        <td width="220">1</td>
+                        <td width="220">{{bib.volumes.length}}</td>
+                        <td width="220">{{getSpecificTag(bib.marc_tags,'082')}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
         <div>
             <el-pagination
                 @size-change="handleSizeChange"
@@ -327,7 +401,91 @@ export default {
             };
         },
         // Triggers whenever there is a change in page size
-        handleSizeChange(val) {}
+        handleSizeChange(val) {},
+        export2Doc(element, filename = "") {
+            const type = "text/html;charset=utf-8";
+            // const sub_url = "data:application/vnd.ms-word;charset=utf-8,"
+            const sub_url = "data:text/html;charset=utf-8;charset=utf-8,";
+
+            var html = `
+            <html>
+            <head><meta charset='utf-8'>
+            <style> 
+                @page word-doc-area{size: 595.35pt 841.95pt;mso-page-orientation: portrait;} 
+                div.word-doc-area {page: word-doc-area;} 
+               
+               
+                .word-doc-area {width: 100%;} 
+                .word-doc-area img.logo {display: block; margin: 100pt auto;} 
+                 table{
+                    border-collapse:collapse;
+                }
+                td{
+                    border:1pt solid gray;width:100%;padding:2pt;
+                } 
+                .word-doc-area table th, .word-doc-area table td { 
+                vertical-align: middle; 
+                text-align: center; 
+                    border: 1pt solid #000000; 
+                } 
+                .word-doc-area th.multi-cell { 
+                    width:40%;
+                    padding: 0; 
+                } 
+                .word-doc-area th.multi-cell .top { 
+                    border-bottom: 1pt solid #000000; 
+                    padding: 10pt; 
+                    width:300pt;
+                } 
+                .word-doc-area th.multi-cell .left { 
+                    // float: left; 
+                    padding: 10pt; 
+                    width: 50%; 
+                    border-left: 1pt solid; 
+                    border-right: 1pt solid; 
+                } 
+                .word-doc-area th.multi-cell div.left:first-child { 
+                    border: none; 
+                } 
+                </style>
+                </head>
+                <body>
+                ${this.$refs[element].innerHTML}
+                </body>
+            </html>
+            `;
+
+            var blob = new Blob(["\ufeff", html], {
+                type: type
+                // type: "application/msword"
+            });
+
+            // Specify link url
+            var url = sub_url + encodeURIComponent(html);
+
+            // Specify file name
+            filename = filename ? filename + ".doc" : "document.doc";
+
+            // Create download link element
+            var downloadLink = document.createElement("a");
+
+            document.body.appendChild(downloadLink);
+
+            if (navigator.msSaveOrOpenBlob) {
+                navigator.msSaveOrOpenBlob(blob, filename);
+            } else {
+                // Create a link to the file
+                downloadLink.href = url;
+
+                // Setting the file name
+                downloadLink.download = filename;
+
+                //triggering the function
+                downloadLink.click();
+            }
+
+            document.body.removeChild(downloadLink);
+        }
     }
 };
 </script>
@@ -345,5 +503,46 @@ export default {
     line-height: 1;
     padding-top: 4px;
     position: relative;
+}
+#word-doc {
+    display: none;
+}
+.word-doc-area {
+    width: 100%;
+}
+.word-doc-area table th,
+.word-doc-area table td {
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #000000;
+}
+.word-doc-area img.logo {
+    display: block;
+    margin: 0 auto;
+    float: none;
+}
+.word-doc-area table th,
+.word-doc-area table td {
+    vertical-align: middle;
+    text-align: center;
+    border: 1px solid #000000;
+    width: 105px;
+}
+.word-doc-area th.multi-cell {
+    padding: 0;
+}
+.word-doc-area th.multi-cell .top {
+    border-bottom: 1px solid #993030;
+    padding: 10px;
+}
+.word-doc-area th.multi-cell .left {
+    float: left;
+    padding: 10px;
+    width: 50%;
+    border-left: 1px solid;
+    border-right: 1px solid;
+}
+.word-doc-area th.multi-cell div.left:first-child {
+    border: none;
 }
 </style>
