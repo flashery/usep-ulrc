@@ -45,9 +45,9 @@ class AllCollectionRepository extends ReportsRepository
         if (sizeof($bibs) === 0) return [];
 
         $reports = [];
-        $deway_decimals_ranges = $this->generateRanges();
+        $Dewey_decimals_ranges = $this->generateRanges();
 
-        foreach ($deway_decimals_ranges as $range) {
+        foreach ($Dewey_decimals_ranges as $range) {
             $start = (int)  $range['start'];
             $end = (int) $range['end'];
 
@@ -59,11 +59,11 @@ class AllCollectionRepository extends ReportsRepository
                 // Get call number value
                 $call_number = $bib_repo->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-                // Get the deway decimal by extracting the first three characters of the Call Number value
-                $deway_decimal =  $bib_repo->getDewayDecimal($call_number);
+                // Get the Dewey decimal by extracting the first three characters of the Call Number value
+                $Dewey_decimal =  $bib_repo->getDeweyDecimal($call_number);
 
                 // Compare value if the same as the current index number
-                if ($deway_decimal >= $start && $deway_decimal <= $end) {
+                if ($Dewey_decimal >= $start && $Dewey_decimal <= $end) {
 
                     // Get the number of volumes of this bib
                     $volume += sizeof($bib->volumes);
@@ -77,7 +77,7 @@ class AllCollectionRepository extends ReportsRepository
             array_push($row_data, $no_of_title);
             array_push($reports, $row_data);
         }
-        array_unshift($reports, ['Deway Decimals', 'volumes', 'No. of titles']);
+        array_unshift($reports, ['Dewey Decimals', 'volumes', 'No. of titles']);
 
         return $reports;
     }
@@ -145,7 +145,7 @@ class AllCollectionRepository extends ReportsRepository
         $title = new Title('All Collection');
         // $yAxisLabel = new Title('Volumes');
         $yAxisLabel = null;
-        $xAxisLabel = new Title('Deway Decimal');
+        $xAxisLabel = new Title('Dewey Decimal');
 
         // Create the chart
         $chart = new Chart(

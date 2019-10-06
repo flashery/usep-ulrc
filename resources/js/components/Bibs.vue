@@ -6,11 +6,6 @@
             <h1 class="h2">List of Bibs</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <el-button-group>
-                    <el-button
-                        type="primary"
-                        icon="el-icon-download"
-                        @click="export2Doc('word-doc', 'Test')"
-                    >Export</el-button>
                     <el-button type="primary" icon="el-icon-collection" @click="addNewBib">New Bib</el-button>
                     <el-button
                         type="primary"
@@ -23,37 +18,72 @@
                         @click="viewMarcTags"
                     >View MARCs</el-button>
                 </el-button-group>
+                <el-popover
+                    placement="bottom"
+                    title="Select a course"
+                    width="200"
+                    trigger="click"
+                    style="margin-left:10px"
+                >
+                    <el-select
+                        v-model="selected_course"
+                        @change="getBibByCourse()"
+                        placeholder="Select a course"
+                        value-key="id"
+                    >
+                        <el-option
+                            v-for="course in courses"
+                            :key="course.value"
+                            :label="course.name"
+                            :value="course"
+                        ></el-option>
+                    </el-select>
+                    <el-button
+                        type="primary"
+                        icon="el-icon-download"
+                        @click="getCourses()"
+                        slot="reference"
+                    >Export</el-button>
+                </el-popover>
             </div>
         </div>
         <h4 class="mb-3">Bibs</h4>
         <table class="table" v-loading="loading">
             <thead>
                 <tr>
-                    <th scope="col">#</th>
                     <th scope="col">Call Number</th>
-                    <th scope="col">Heading</th>
+                    <th scope="col">Book Titles</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Accession Number</th>
+                    <th scope="col">Copyright</th>
+                    <th scope="col">No. of Titles</th>
+                    <th scope="col">No. of Volumes</th>
                     <th></th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(bib, index) in bibs" :key="index">
-                    <th>{{index}}</th>
                     <td>{{getSpecificTag(bib.marc_tags,'082')}}</td>
                     <td>{{getSpecificTag(bib.marc_tags,'245')}}</td>
-                    <td>
+                    <td>{{getSpecificTag(bib.marc_tags,'100')}}</td>
+                    <td>{{getSpecificTag(bib.marc_tags,'016')}}</td>
+                    <td>{{getCopyrightDate(getSpecificTag(bib.marc_tags,'082'))}}</td>
+                    <td>1</td>
+                    <td>{{ bib.volumes.length}}</td>
+                    <td style="width: 111px;">
                         <el-button-group>
                             <el-button
-                                size="small"
+                                size="mini"
                                 type="primary"
                                 icon="el-icon-edit"
                                 @click="editBib(bib)"
-                            >Edit</el-button>
+                            ></el-button>
                             <el-button
-                                size="small"
+                                size="mini"
                                 type="danger"
                                 icon="el-icon-delete"
                                 @click="deleteBib(bib)"
-                            >Delete</el-button>
+                            ></el-button>
                         </el-button-group>
                     </td>
                 </tr>
@@ -76,32 +106,10 @@
                 </table>
                 <h1 align="center">University of Southeastern Philippines</h1>
                 <h3 align="center">University Learning Resource Center</h3>
-                <p align="center">BACHELOR OF SCIENCE IN __________________ As of July 2019</p>
-                <!-- <table class="table" v-loading="loading">
-                    <thead>
-                        <tr>
-                            <th scope="col">Course Code/Title</th>
-                            <th scope="col">Title Author. (year). Title. Place. Publishing</th>
-                            <th class="multi-cell" scope="col">
-                                <div class="top">Overall Collection</div>
-                                <div class="left">No. of Titles</div>
-                                <div class="left">No. of Volumes</div>
-                            </th>
-                            <th scope="col">Call Number</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(bib, index) in bibs" :key="index">
-                            <td width="20%">{{getSpecificTag(bib.marc_tags,'082')}}</td>
-                            <td>{{getSpecificTag(bib.marc_tags,'245')}}</td>
-                            <td class="multi-cell">
-                                <div class="left">No. of Titles</div>
-                                <div class="left">No. of Volumes</div>
-                            </td>
-                            <td>test2</td>
-                        </tr>
-                    </tbody>
-                </table>-->
+                <p
+                    align="center"
+                >{{ selected_course_name }} IN __________________ As of {{ current_month_year }}</p>
+
                 <table class="table" style="width:100%;" v-loading="loading">
                     <tr>
                         <th rowspan="2" width="20" scope="col">Course Code/Title</th>
@@ -117,9 +125,16 @@
                         <th>No. of Titles</th>
                         <th>No. of Volumes</th>
                     </tr>
-                    <tr v-for="(bib, index) in bibs" :key="index">
+                    <tr v-for="(bib, index) in bibs_by_course" :key="index">
                         <td width="20">{{getSpecificTag(bib.marc_tags,'245')}}</td>
-                        <td width="220"></td>
+                        <td width="220">
+                            {{
+                            getSpecificTag(bib.marc_tags,'245') + ' '
+                            + getSpecificTag(bib.marc_tags,'100') + ' '
+                            + getSpecificTag(bib.marc_tags,'260') + ' '
+                            + getSpecificTag(bib.marc_tags,'245')
+                            }}
+                        </td>
                         <td width="220">1</td>
                         <td width="220">{{bib.volumes.length}}</td>
                         <td width="220">{{getSpecificTag(bib.marc_tags,'082')}}</td>
@@ -182,6 +197,7 @@
 import BibModal from "./bib/BibModal";
 import MarcTagModal from "./bib/MarcTagModal";
 import ViewMarcTags from "./bib/ViewMarcTags";
+import { format } from "date-fns";
 
 const MODE_CREATE = "CREATE";
 const MODE_UPDATE = "UPDATE";
@@ -201,9 +217,14 @@ export default {
                 show_as_default: false
             },
             bibs: [],
+            courses: [],
+            selected_course: { name: "" },
+            selected_course_name: "",
+            current_month_year: format(new Date(), "MMMM YYYY"),
             marc_tags: [],
             subjects: [],
-            pagination: {}
+            pagination: {},
+            bibs_by_course: []
         };
     },
 
@@ -215,6 +236,9 @@ export default {
             this.getMarcTags();
             this.getBibs();
         },
+        getCopyrightDate(call_number) {
+            return call_number.substr(call_number.length - 4, 4);
+        },
         getSpecificTag(marc_tags, col) {
             let marc_tag = {};
 
@@ -223,7 +247,33 @@ export default {
             });
             if (marc_tag.length === 0) return "";
 
-            return marc_tag[0].pivot.value;
+            return marc_tag[0].pivot.value ? marc_tag[0].pivot.value : "";
+        },
+        getBibByCourse() {
+            this.bibs_by_course = this.bibs.filter(bib => {
+                return bib.subjects.find(subject => {
+                    return this.selected_course.id === subject.course_id;
+                });
+            });
+
+            if (this.bibs_by_course.length > 0)
+                this.selected_course_name = this.selected_course.name.toUpperCase();
+            this.$nextTick(() => {
+                this.export2Doc(
+                    "word-doc",
+                    "Reports for " + this.selected_course.name
+                );
+            });
+        },
+        getCourses() {
+            axios
+                .get("/course")
+                .then(res => {
+                    this.courses = res.data;
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         },
         // Bib
         getBibs() {
@@ -401,7 +451,9 @@ export default {
             };
         },
         // Triggers whenever there is a change in page size
-        handleSizeChange(val) {},
+        handleSizeChange(val) {
+            //
+        },
         export2Doc(element, filename = "") {
             const type = "text/html;charset=utf-8";
             // const sub_url = "data:application/vnd.ms-word;charset=utf-8,"

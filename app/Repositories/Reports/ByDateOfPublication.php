@@ -134,7 +134,7 @@ class ByDateOfPublication extends ReportsRepository
         $title = new Title('All Collection');
         // $yAxisLabel = new Title('Volumes');
         $yAxisLabel = null;
-        $xAxisLabel = new Title('Deway Decimal');
+        $xAxisLabel = new Title('Dewey Decimal');
 
         // Create the chart
         $chart = new Chart(

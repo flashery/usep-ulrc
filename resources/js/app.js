@@ -36,6 +36,7 @@ Vue.component("dcs", require("./components/DCS.vue").default);
 Vue.component("profile", require("./components/Profile.vue").default);
 Vue.component("search", require("./components/Search.vue").default);
 Vue.component("reports", require("./components/Reports.vue").default);
+Vue.component("users", require("./components/Users.vue").default);
 
 Vue.filter("noImage", image => {
     let image1 = "";

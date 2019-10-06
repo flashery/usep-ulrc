@@ -16,7 +16,7 @@
       <a class="dropdown-item" href="/search">Search</a>
       <a class="dropdown-item" href="/bib">Bibs</a>
       <a class="dropdown-item" href="/dcs">DCS</a>
-      <a class="dropdown-item" href="/users">Users</a>
+      <a class="dropdown-item" href="/user">Users</a>
       <a class="dropdown-item" href="/reports">Reports</a>
       <a class="dropdown-item" href="/profile/">Profile</a>
       <a href="javascript:void(0)" class="dropdown-item text-warning" @click="logout()">Logout</a>

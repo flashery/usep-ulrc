@@ -68,12 +68,12 @@ class ReportController extends Controller
 
         if (sizeof($bibs) === 0) return [];
 
-        $deway_decimals_ranges = $this->generateRanges();
+        $Dewey_decimals_ranges = $this->generateRanges();
         $reports = [];
 
         $departments = Department::all();
 
-        foreach ($deway_decimals_ranges as $range) {
+        foreach ($Dewey_decimals_ranges as $range) {
 
             $start = (int)  $range['start'];
             $end = (int) $range['end'];
@@ -86,11 +86,11 @@ class ReportController extends Controller
                 // Get call number value
                 $call_number = $this->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-                // Get the deway decimal by extracting the first three characters of the Call Number value
-                $deway_decimal = $this->getDewayDecimal($call_number);
+                // Get the Dewey decimal by extracting the first three characters of the Call Number value
+                $Dewey_decimal = $this->getDeweyDecimal($call_number);
 
                 // Compare value if the same as the current index number
-                if ($deway_decimal >= $start && $deway_decimal <= $end) {
+                if ($Dewey_decimal >= $start && $Dewey_decimal <= $end) {
 
 
                     foreach ($departments as $department) {

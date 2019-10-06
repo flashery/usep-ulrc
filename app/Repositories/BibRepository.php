@@ -35,7 +35,7 @@ class BibRepository
         return substr($call_number, -4, strlen($call_number));
     }
 
-    public function getDewayDecimal($call_number)
+    public function getDeweyDecimal($call_number)
     {
         return (int) substr($call_number, 5, 3);
     }

@@ -47,8 +47,8 @@ class AllCollectionNotUsed extends ReportsRepository
             // Get call number value
             $call_number = $bib_repo->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-            // Get the deway decimal by extracting the first three characters of the Call Number value
-            $deway_decimal = $bib_repo->getDewayDecimal($call_number);
+            // Get the Dewey decimal by extracting the first three characters of the Call Number value
+            $Dewey_decimal = $bib_repo->getDeweyDecimal($call_number);
             $departments = Department::all();
 
             $data = [];
@@ -61,9 +61,9 @@ class AllCollectionNotUsed extends ReportsRepository
                 foreach ($bib->subjects as $subject) {
 
 
-                    $deway_decimals_ranges = $this->generateRanges();
+                    $Dewey_decimals_ranges = $this->generateRanges();
 
-                    foreach ($deway_decimals_ranges as $range) {
+                    foreach ($Dewey_decimals_ranges as $range) {
 
 
                         $start = (int)  $range['start'];
@@ -71,7 +71,7 @@ class AllCollectionNotUsed extends ReportsRepository
                         $data_range = $range['start'] . '-' . $range['end'];
 
                         // Compare value if the same as the current index number
-                        if ($deway_decimal >= $start && $deway_decimal <= $end) {
+                        if ($Dewey_decimal >= $start && $Dewey_decimal <= $end) {
                             $subject_department = $subject->course->department;
 
                             if (in_array($department->id, $department_ids) && $department->id === $subject_department->id) {
@@ -106,7 +106,7 @@ class AllCollectionNotUsed extends ReportsRepository
             // array_push($reports, $row_data);
         }
 
-        $labels = ['Deway Decimal'];
+        $labels = ['Dewey Decimal'];
         foreach ($departments as $department) {
             array_push($labels, $department->name);
         }
@@ -177,7 +177,7 @@ class AllCollectionNotUsed extends ReportsRepository
         $title = new Title('All Collection');
         // $yAxisLabel = new Title('Volumes');
         $yAxisLabel = null;
-        $xAxisLabel = new Title('Deway Decimal');
+        $xAxisLabel = new Title('Dewey Decimal');
 
         // Create the chart
         $chart = new Chart(

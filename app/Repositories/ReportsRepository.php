@@ -16,8 +16,8 @@ class ReportsRepository
     protected function generateRanges()
     {
         $data = [];
-        $deway_decimal_start = 0;
-        $deway_decimal_end = 100;
+        $Dewey_decimal_start = 0;
+        $Dewey_decimal_end = 100;
         $start = 0;
         $step = 100;
         $end = 1000;
@@ -26,10 +26,10 @@ class ReportsRepository
 
             if ($number >= $end) break;
 
-            $deway_decimal_start =  str_pad($number, 3, '0', STR_PAD_LEFT); // add 0s to the left of the digits if digits lesser than 3
-            $deway_decimal_end = str_pad($number + $step  - 1, 3, '0', STR_PAD_LEFT); // add 0s to the left of the digits if digits lesser than 3
+            $Dewey_decimal_start =  str_pad($number, 3, '0', STR_PAD_LEFT); // add 0s to the left of the digits if digits lesser than 3
+            $Dewey_decimal_end = str_pad($number + $step  - 1, 3, '0', STR_PAD_LEFT); // add 0s to the left of the digits if digits lesser than 3
 
-            array_push($data, ['start' => $deway_decimal_start, 'end' => $deway_decimal_end]);
+            array_push($data, ['start' => $Dewey_decimal_start, 'end' => $Dewey_decimal_end]);
         }
 
         return $data;
