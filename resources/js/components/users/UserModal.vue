@@ -19,11 +19,11 @@
             <el-form-item label="Email" prop="name">
                 <el-input v-model="form.email"></el-input>
             </el-form-item>
-            <el-form-item label="Password" prop="password1">
-                <el-input v-model="form.password1"></el-input>
+            <el-form-item label="Password" prop="password">
+                <el-input v-model="form.password"></el-input>
             </el-form-item>
-            <el-form-item label="Confirm Password" prop="password2">
-                <el-input v-model="form.password2"></el-input>
+            <el-form-item label="Confirm Password" prop="password_confirmation">
+                <el-input v-model="form.password_confirmation"></el-input>
             </el-form-item>
         </el-form>
     </el-dialog>
@@ -75,14 +75,14 @@ export default {
                         trigger: "blur"
                     }
                 ],
-                password1: [
+                password: [
                     {
                         required: true,
                         message: "Please select an image",
                         trigger: "change"
                     }
                 ],
-                 password2: [
+                 password_confirmation: [
                     {
                         required: true,
                         message: "Please select an image",
@@ -96,6 +96,9 @@ export default {
     methods: {
         handleClose() {
             this.$emit("close");
+        },
+        createUser() {
+            axios.post('/register', this.form).then()
         }
     },
     computed: {

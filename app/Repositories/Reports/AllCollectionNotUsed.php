@@ -20,6 +20,7 @@ class AllCollectionNotUsed extends ReportsRepository
 {
     protected $report_path = '';
     private $data = [];
+    protected const TITLE = 'All Collection Not Used';
 
     public function __construct(array $data)
     {
@@ -40,77 +41,65 @@ class AllCollectionNotUsed extends ReportsRepository
         $reports = [];
 
 
+        $Dewey_decimals_ranges = $this->generateRanges();
+        $departments = Department::all();
 
-        foreach ($bibs as $bib) {
 
-
-            // Get call number value
-            $call_number = $bib_repo->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
-
-            // Get the Dewey decimal by extracting the first three characters of the Call Number value
-            $Dewey_decimal = $bib_repo->getDeweyDecimal($call_number);
-            $departments = Department::all();
-
+        foreach ($departments as $department) {
             $data = [];
-            $row_data = [];
-            $department_ids = [];
+            $data_ranges = [];
 
-            foreach ($departments as $department) {
+            foreach ($Dewey_decimals_ranges as $range) {
 
+                $start = (int)  $range['start'];
+                $end = (int) $range['end'];
+                $data_range = $range['start'] . '-' . $range['end'];
 
-                foreach ($bib->subjects as $subject) {
+                foreach ($bibs as $bib) {
 
+                    // Get call number value
+                    $call_number = $bib_repo->getSpecificMarcTag(collect($bib->marc_tags)->toArray(), '082');
 
-                    $Dewey_decimals_ranges = $this->generateRanges();
+                    // Get the Dewey decimal by extracting the first three characters of the Call Number value
+                    $Dewey_decimal = $bib_repo->getDeweyDecimal($call_number);
 
-                    foreach ($Dewey_decimals_ranges as $range) {
-
-
-                        $start = (int)  $range['start'];
-                        $end = (int) $range['end'];
-                        $data_range = $range['start'] . '-' . $range['end'];
+                    foreach ($bib->subjects as $subject) {
+                        $subject_department = $subject->course->department;
 
                         // Compare value if the same as the current index number
                         if ($Dewey_decimal >= $start && $Dewey_decimal <= $end) {
-                            $subject_department = $subject->course->department;
 
-                            if (in_array($department->id, $department_ids) && $department->id === $subject_department->id) {
-
-                                $data[$data_range] += sizeof($bib->volumes);
+                            if (in_array($data_range, $data_ranges)) {
+                                if ($bib->views <= 0 && $department->id === $subject_department->id)
+                                    $data[$data_range] += 1;
                             } else {
-
+                                if ($bib->views <= 0 && $department->id === $subject_department->id) {
+                                    $data[$data_range] = 1;
+                                } else {
+                                    $data[$data_range] = 0;
+                                }
+                                array_push($data_ranges, $data_range);
+                            }
+                        } else {
+                            if (!in_array($data_range, $data_ranges)) {
                                 $data[$data_range] = 0;
-
-                                array_push($department_ids, $department->id);
+                                array_push($data_ranges, $data_range);
                             }
                         }
                     }
                 }
             }
 
-            dump($data);
-
-
-
-            // array_push($row_data, $data_range);
-            // if (sizeof($data) > 0) {
-            //     foreach ($data as $key => $dep) {
-
-            //         array_push($row_data, $dep);
-            //     }
-            // } else {
-            //     foreach ($departments as $department) {
-            //         array_push($row_data, 0);
-            //     }
-            // }
-            // array_push($reports, $row_data);
+            array_push($reports, $data);
         }
 
         $labels = ['Dewey Decimal'];
         foreach ($departments as $department) {
             array_push($labels, $department->name);
         }
+
         array_unshift($reports, $labels);
+
         return $reports;
     }
 
@@ -118,12 +107,38 @@ class AllCollectionNotUsed extends ReportsRepository
     {
         $data = $this->getReports();
 
+        if (sizeof($data) <= 0) return true;
+
+        $labels = $data[0];
+        unset($data[0]);
+        $datas = [];
+        $row_keys = [];
+        foreach ($data as $cols) {
+
+            foreach ($cols as $key => $col) {
+                array_push($row_keys, [$key]);
+            }
+            break;
+        }
+        foreach ($row_keys as $row_key) {
+
+            foreach ($data as $cols) {
+
+                foreach ($cols as $key => $col) {
+
+                    if ($row_key[0] === $key)
+                        array_push($row_key, $col);
+                }
+            }
+            array_push($datas, $row_key);
+        }
+        array_unshift($datas, $labels);
         $spreadsheet = new Spreadsheet();
         $worksheet = $spreadsheet->getActiveSheet();
 
         $this->insertLogo($worksheet);
 
-        $worksheet->fromArray($data, null, 'A10');
+        $worksheet->fromArray($datas, null, 'A10');
         // Set the Labels for each data series we want to plot
         //     Datatype
         //     Cell reference for data
@@ -131,11 +146,17 @@ class AllCollectionNotUsed extends ReportsRepository
         //     Number of datapoints in series
         //     Data values
         //     Data Marker
-        $dataSeriesLabels = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Worksheet!$B$10', null, 1),
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Worksheet!$C$10', null, 1),
+        $dataSeriesLabels =  [];
+        for ($i = 0; $i < sizeof($labels); $i++) {
+            $cell_col = self::CELL_COLS[$i];
+            array_push($dataSeriesLabels,  new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Worksheet!$' . $cell_col . '$10', null, 1));
+        }
+        // $dataSeriesLabels = [
+        //     new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Worksheet!$B$10', null, 1),
+        //     new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_STRING, 'Worksheet!$C$10', null, 1),
 
-        ];
+        // ];
+
         // Set the X-Axis Labels
         //     Datatype
         //     Cell reference for data
@@ -153,10 +174,15 @@ class AllCollectionNotUsed extends ReportsRepository
         //     Number of datapoints in series
         //     Data values
         //     Data Marker
-        $dataSeriesValues = [
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Worksheet!$B$11:$B$20', null, 4), // Volumes value
-            new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Worksheet!$C$11:$C$20', null, 4), // No. of Titles value
-        ];
+        $dataSeriesValues =  [];
+        for ($i = 0; $i < sizeof($labels); $i++) {
+            $cell_col = self::CELL_COLS[$i];
+            array_push($dataSeriesValues,  new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Worksheet!$' . $cell_col . '$11:$' . $cell_col . '$20', null, 4));
+        }
+        // $dataSeriesValues = [
+        //     new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Worksheet!$B$11:$B$20', null, 4), // Volumes value
+        //     new DataSeriesValues(DataSeriesValues::DATASERIES_TYPE_NUMBER, 'Worksheet!$C$11:$C$20', null, 4), // No. of Titles value
+        // ];
 
         // Build the dataseries
         $series = new DataSeries(
@@ -174,7 +200,7 @@ class AllCollectionNotUsed extends ReportsRepository
         $plotArea = new PlotArea(null, [$series]);
         // Set the chart legend
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
-        $title = new Title('All Collection');
+        $title = new Title(self::TITLE);
         // $yAxisLabel = new Title('Volumes');
         $yAxisLabel = null;
         $xAxisLabel = new Title('Dewey Decimal');
@@ -191,12 +217,12 @@ class AllCollectionNotUsed extends ReportsRepository
             $yAxisLabel  // yAxisLabel
         );
 
-        $topLeftPosNum = sizeof($data) + 12;
-        $bottomRightPostNum = sizeof($data) + 25;
+        $topLeftPosNum = sizeof($datas) + 12;
+        $bottomRightPostNum = sizeof($datas) + 25;
         // Set the position where the chart should appear in the worksheet
         $chart->setTopLeftPosition('A' . $topLeftPosNum);
         $chart->setBottomRightPosition('I' . $bottomRightPostNum);
-        $worksheet->getStyle('A10:C10')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('f86060');
+        $worksheet->getStyle(self::CELL_COLS[0] . '10:' . self::CELL_COLS[sizeof($labels) - 1] . '10')->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB('f86060');
         $worksheet->getColumnDimension('A')->setAutoSize(true);
         // Add the chart to the worksheet
         $worksheet->addChart($chart);

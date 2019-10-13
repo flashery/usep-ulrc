@@ -47,6 +47,13 @@ export default {
             },
             tooltips: {
                 intersect: false
+            },
+            legend: {
+                display: true,
+                position: "right",
+                labels: {
+                    fontColor: "#000080"
+                }
             }
         }
     }),

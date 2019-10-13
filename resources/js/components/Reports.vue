@@ -137,6 +137,7 @@
         <!-- END COLLECTION PER COLLEGE -->
         <!-- START ALL COLLECTION NOT USED -->
         <h4 class="mb-3">{{all_collection_not_used.title}}</h4>
+        <a href="javascript:void(0)" @click="exportReport('all_collection_not_used')">Download Report</a>
         <div class="col-md-12">
             <bar-chart
                 v-show="all_collection_not_used.reports"
@@ -278,6 +279,17 @@ export default {
                 case "by_date_of_pub":
                     axios
                         .get("/reports/export?type=by_date_of_pub")
+                        .then(res => {
+                            this.download_url = res.data;
+                            this.download();
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                    break;
+                case "all_collection_not_used":
+                    axios
+                        .get("/reports/export?type=all_collection_not_used")
                         .then(res => {
                             this.download_url = res.data;
                             this.download();
@@ -438,28 +450,28 @@ export default {
         },
 
         getCollectionNotUsed() {
-            // this.all_collection_not_used.labels = [];
-            // this.all_collection_not_used.reports = [];
-            // this.all_collection_not_used.datas = [];
-            // this.all_collection_not_used.load = true;
-            // axios
-            //     .get("/reports?type=all_collection_not_used")
-            //     .then(response => {
-            //         this.all_collection_not_used.reports =
-            //             response.data.reports;
-            //         this.formatCollectionNotUsed(this.all_collection_not_used);
-            //         this.all_collection_not_used.load = false;
-            //         this.all_collection_not_used.key = this.generateKey();
-            //     })
-            //     .catch(err => {
-            //         this.loading = false;
-            //         console.log(err);
-            //         this.$message({
-            //             message:
-            //                 "Oops, there is an error updating user profile image.",
-            //             type: "error"
-            //         });
-            //     });
+            this.all_collection_not_used.labels = [];
+            this.all_collection_not_used.reports = [];
+            this.all_collection_not_used.datas = [];
+            this.all_collection_not_used.load = true;
+            axios
+                .get("/reports?type=all_collection_not_used")
+                .then(response => {
+                    this.all_collection_not_used.reports =
+                        response.data.reports;
+                    this.formatCollectionNotUsed(this.all_collection_not_used);
+                    this.all_collection_not_used.load = false;
+                    this.all_collection_not_used.key = this.generateKey();
+                })
+                .catch(err => {
+                    this.loading = false;
+                    console.log(err);
+                    this.$message({
+                        message:
+                            "Oops, there is an error updating user profile image.",
+                        type: "error"
+                    });
+                });
         },
 
         /*
@@ -598,14 +610,26 @@ export default {
             let object_data_ctr = 0;
             object.reports.forEach(report => {
                 if (index !== 0) {
-                    object.labels.push(report[0]);
                     if (object_data_ctr < object.data.length) {
+                        object.labels = [];
+
                         let inner_index = 0;
-                        report.forEach(rep => {
-                            if (inner_index !== 0)
-                                object.data[object_data_ctr].values.push(rep);
+                        Object.keys(report).forEach(key => {
+                            object.labels.push(key);
+
+                            // if (inner_index !== 0) {
+                                console.log(inner_index, report[key], key);
+                                object.data[object_data_ctr].values.push(
+                                    report[key]
+                                );
+                            // }
                             inner_index++;
                         });
+                        // report.forEach(rep => {
+                        //     if (inner_index !== 0)
+                        //         object.data[object_data_ctr].values.push(rep);
+                        //     inner_index++;
+                        // });
                         object_data_ctr++;
                     }
                 }

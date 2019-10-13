@@ -9,7 +9,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
 class ReportsRepository
 {
-
+    protected const CELL_COLS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     public function __construct()
     { }
 

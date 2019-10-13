@@ -18,6 +18,7 @@ class ByDateOfPublication extends ReportsRepository
 {
     protected $report_path = '';
     private $data = [];
+    protected const TITLE = 'Collection by Date of Publication';
 
     public function __construct(array $data)
     {
@@ -131,7 +132,7 @@ class ByDateOfPublication extends ReportsRepository
         $plotArea = new PlotArea(null, [$series]);
         // Set the chart legend
         $legend = new Legend(Legend::POSITION_RIGHT, null, false);
-        $title = new Title('All Collection');
+        $title = new Title(self::TITLE);
         // $yAxisLabel = new Title('Volumes');
         $yAxisLabel = null;
         $xAxisLabel = new Title('Dewey Decimal');
