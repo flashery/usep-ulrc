@@ -99,6 +99,7 @@ export default {
     components: { BibModal, ViewBibModal },
     data() {
         return {
+            loading: false,
             authenticated: window.Laravel.user.authenticated,
             show_view_bib_modal: false,
             show_bib_modal: false,
