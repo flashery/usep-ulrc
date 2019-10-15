@@ -4,7 +4,7 @@
         :title="title"
         :visible.sync="show_view_bib_modal"
         :before-close="handleClose"
-        width="35%"
+        width="75%"
     >
         <!-- For view only -->
         <table class="table">

@@ -28,8 +28,8 @@ class ReportController extends Controller
 
         if ($request->ajax()) {
             if ($request->get('type') === 'collection_per_college') {
-
-                $reports = $this->collectionPerCollege($request->all());
+                $by_date_pub = new ByDateOfPublication($request->all());
+                $reports = $by_date_pub->getReports();
             } else if ($request->get('type') === 'by_date_of_pub') {
 
                 $by_date_pub = new ByDateOfPublication($request->all());

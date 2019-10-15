@@ -8,7 +8,7 @@
         </div>
 
         <!-- START ALL COLLECTION -->
-        <h4 class="mb-3">{{all_collection.title}}</h4>
+        <h4 class="report-title mb-3">{{all_collection.title}}</h4>
         <a href="javascript:void(0)" @click="exportReport('all_collection')">Download Report</a>
         <div class="col-md-12">
             <bar-chart
@@ -28,7 +28,7 @@
         <!-- END ALL COLLECTION -->
         <hr />
         <!-- START ALL COLLECTION PER COLLEGE -->
-        <h4 class="mb-3">{{all_collection_per_college.title}}</h4>
+        <h4 class="report-title mb-3">{{all_collection_per_college.title}}</h4>
         <a
             href="javascript:void(0)"
             @click="exportReport('all_collection_per_college')"
@@ -76,7 +76,7 @@
         <!-- END ALL COLLECTION PER COLLEGE -->
         <hr />
         <!-- START COLLECTION PER COLLEGE -->
-        <h4 class="mb-3">{{collection_per_college.title}}</h4>
+        <h4 class="report-title mb-3">{{collection_per_college.title}}</h4>
         <div class="col-md-12">
             <el-select
                 @change="getCollectionPerCollege()"
@@ -113,7 +113,7 @@
         <!-- END COLLECTION PER COLLEGE -->
         <hr />
         <!-- START COLLECTION PER COLLEGE -->
-        <h4 class="mb-3">{{collection_per_year.title}}</h4>
+        <h4 class="report-title mb-3">{{collection_per_year.title}}</h4>
         <a href="javascript:void(0)" @click="exportReport('by_date_of_pub')">Download Report</a>
         <div class="col-md-12">
             <bar-chart
@@ -136,7 +136,7 @@
         </div>
         <!-- END COLLECTION PER COLLEGE -->
         <!-- START ALL COLLECTION NOT USED -->
-        <h4 class="mb-3">{{all_collection_not_used.title}}</h4>
+        <h4 class="report-title mb-3">{{all_collection_not_used.title}}</h4>
         <a href="javascript:void(0)" @click="exportReport('all_collection_not_used')">Download Report</a>
         <div class="col-md-12">
             <bar-chart
@@ -194,7 +194,7 @@ export default {
                 data: { volumes: [], no_of_titles: [] }
             },
             all_collection_per_college: {
-                title: "Graphical Representation Of All Collection PER College",
+                title: "Graphical Representation Of All Collection PER Program",
                 load: false,
                 course: {
                     id: 0
@@ -393,34 +393,34 @@ export default {
         },
 
         getCollectionPerCollege() {
-            // this.collection_per_college.reports = [];
-            // this.collection_per_college.labels = [];
-            // this.collection_per_college.data = {
-            //     volumes: [],
-            //     no_of_titles: []
-            // };
-            // this.collection_per_college.load = true;
-            // axios
-            //     .get(
-            //         "/reports?department_id=" +
-            //             this.collection_per_college.department.id +
-            //             "&type=collection_per_college"
-            //     )
-            //     .then(response => {
-            //         this.collection_per_college.reports = response.data.reports;
-            //         this.formatCollectionPerYear(this.collection_per_college);
-            //         this.collection_per_college.load = false;
-            //         this.collection_per_college.key = this.generateKey();
-            //     })
-            //     .catch(err => {
-            //         console.log(err);
-            //         this.loading = false;
-            //         this.$message({
-            //             message:
-            //                 "Oops, there is an error updating user profile image.",
-            //             type: "error"
-            //         });
-            //     });
+            this.collection_per_college.reports = [];
+            this.collection_per_college.labels = [];
+            this.collection_per_college.data = {
+                volumes: [],
+                no_of_titles: []
+            };
+            this.collection_per_college.load = true;
+            axios
+                .get(
+                    "/reports?department_id=" +
+                        this.collection_per_college.department.id +
+                        "&type=collection_per_college"
+                )
+                .then(response => {
+                    this.collection_per_college.reports = response.data.reports;
+                    this.formatCollectionPerYear(this.collection_per_college);
+                    this.collection_per_college.load = false;
+                    this.collection_per_college.key = this.generateKey();
+                })
+                .catch(err => {
+                    console.log(err);
+                    this.loading = false;
+                    this.$message({
+                        message:
+                            "Oops, there is an error updating user profile image.",
+                        type: "error"
+                    });
+                });
         },
 
         getCollectionPerYear() {
@@ -663,5 +663,8 @@ export default {
 <style>
 .el-select {
     margin: 20px 0;
+}
+.report-title{
+    text-transform: uppercase;
 }
 </style>

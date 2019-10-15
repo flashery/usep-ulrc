@@ -11,7 +11,7 @@
                     id="search"
                     type="text"
                     name="search"
-                    placeholder="Please enter the name of journal"
+                    placeholder="Please enter the name of LIBRARY RESOURCES "
                     required="required"
                     autocomplete="off"
                     autofocus="on"
