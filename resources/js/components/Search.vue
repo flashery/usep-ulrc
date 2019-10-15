@@ -18,6 +18,7 @@
                     @keydown="showHistories()"
                     @focus="showHistories()"
                     class="form-control"
+                    @blur="showHistories()"
                     @keyup.enter="handleKeyPress"
                     v-model="keyword"
                 />
