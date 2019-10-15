@@ -6,7 +6,7 @@
             <h1 class="h2">Search</h1>
         </div>
         <div class="row">
-            <div class="col-md-10">
+            <div class="col-md-12">
                 <input
                     id="search"
                     type="text"
@@ -18,7 +18,6 @@
                     @keydown="showHistories()"
                     @focus="showHistories()"
                     class="form-control"
-                    @blur="showHistories()"
                     @keyup.enter="handleKeyPress"
                     v-model="keyword"
                 />
@@ -36,19 +35,19 @@
                     </li>
                 </ul>
             </div>
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
                 <el-select v-model="search_type">
                     <el-option label="Title" value="title"></el-option>
                     <el-option label="Subject" value="subject"></el-option>
                     <el-option label="Author" value="author"></el-option>
                 </el-select>
-            </div>
+            </div>-->
         </div>
         <hr />
         <div class="row">
             <div class="col-md-12">
                 <h4 class="mb-3">Bibs search results</h4>
-                <table class="table">
+                <table v-loading="loading" class="table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -68,7 +67,6 @@
                                 >{{getSpecificTag(bib.marc_tags,'245')}}</a>
                             </td>
                         </tr>
-                        
                     </tbody>
                 </table>
             </div>
@@ -144,6 +142,7 @@ export default {
             return marc_tag[0].pivot.value;
         },
         storeSearchhistory() {
+            this.loading = true;
             this.hideHistories();
             // Search immidiately if user is not authenticated
             if (this.authenticated) {
@@ -152,6 +151,10 @@ export default {
                     .then(response => {
                         this.search_histories = response.data;
                         this.search();
+                        this.loading = false;
+                    })
+                    .catch(err => {
+                        console.log(err);
                     });
             } else {
                 this.search();
@@ -159,6 +162,7 @@ export default {
         },
 
         search(q) {
+            this.loading = true;
             this.hideHistories();
 
             if (q) this.keyword = q;
@@ -169,8 +173,11 @@ export default {
                 .then(response => {
                     this.bibs = response.data;
                     // this.$Progress.finish();
+                    this.loading = false;
                 })
                 .catch(errors => {
+                    console.log(errors);
+
                     // this.$Progress.fail();
                 });
         },
