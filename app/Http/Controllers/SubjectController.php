@@ -17,7 +17,7 @@ class SubjectController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -30,7 +30,7 @@ class SubjectController extends Controller
         if ($request->get('q')) {
 
             $q = $request->get('q');
-            
+
             $subjects = Subject::where('name', 'like', "%$q%")->get();
 
             return response()->json($subjects);
@@ -39,6 +39,26 @@ class SubjectController extends Controller
         return response()->json(Subject::all());
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function byCourse(Request $request)
+    {
+        $subjects = [];
+
+        if ($request->has('course_id')) {
+
+            $course_id = $request->get('course_id');
+
+            $subjects = Subject::where('course_id', $course_id)->with('bibs.marc_tags','bibs.volumes')->has('bibs')->get();
+
+            return response()->json($subjects);
+        }
+
+        return response()->json(Subject::all());
+    }
     /**
      * Show the form for creating a new resource.
      *

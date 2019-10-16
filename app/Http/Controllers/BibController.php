@@ -29,13 +29,28 @@ class BibController extends Controller
         if ($request->ajax()) {
 
             $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->paginate(10);
-
             return response()->json($bibs);
         }
 
         return view('bibs');
     }
+    public function byCourse(Request $request)
+    {
+        $bibs = [];
 
+        if ($request->has('course_id')) {
+
+            $course_id = $request->get('course_id');
+
+            $bibs = Bib::with('marc_tags', 'subjects', 'volumes')->whereHas('subjects', function ($q) use ($course_id) {
+                $q->where('course_id', $course_id);
+            })->get();
+
+            return response()->json($bibs);
+        }
+
+        return response()->json(Subject::all());
+    }
     /**
      * Store a newly created resource in storage.
      *

@@ -125,19 +125,12 @@
                         <th>No. of Titles</th>
                         <th>No. of Volumes</th>
                     </tr>
-                    <tr v-for="(bib, index) in bibs_by_course" :key="index">
-                        <td width="20">{{getSpecificTag(bib.marc_tags,'245')}}</td>
-                        <td width="220">
-                            {{
-                            getSpecificTag(bib.marc_tags,'245') + ' '
-                            + getSpecificTag(bib.marc_tags,'100') + ' '
-                            + getSpecificTag(bib.marc_tags,'260') + ' '
-                            + getSpecificTag(bib.marc_tags,'245')
-                            }}
-                        </td>
+                    <tr v-for="(bib, index) in formatted_export_data" :key="index">
+                        <td width="20">{{bib.code}}</td>
+                        <td width="220">{{ bib.info }}</td>
                         <td width="220">1</td>
-                        <td width="220">{{bib.volumes.length}}</td>
-                        <td width="220">{{getSpecificTag(bib.marc_tags,'082')}}</td>
+                        <td width="220">{{bib.volumes}}</td>
+                        <td width="220">{{bib.call_number}}</td>
                     </tr>
                 </table>
             </div>
@@ -198,6 +191,7 @@ import BibModal from "./bib/BibModal";
 import MarcTagModal from "./bib/MarcTagModal";
 import ViewMarcTags from "./bib/ViewMarcTags";
 import { format } from "date-fns";
+import { log } from "util";
 
 const MODE_CREATE = "CREATE";
 const MODE_UPDATE = "UPDATE";
@@ -216,6 +210,7 @@ export default {
                 non_marc_tag: "",
                 show_as_default: false
             },
+            formatted_export_data: [],
             bibs: [],
             courses: [],
             selected_course: { name: "" },
@@ -230,11 +225,17 @@ export default {
 
     mounted() {
         this.getDatas();
+        // this.sortBibs();
     },
     methods: {
         getDatas() {
             this.getMarcTags();
             this.getBibs();
+        },
+        sortBibs() {
+            this.bibs.sort((a, b) => {
+                console.log(a);
+            });
         },
         getCopyrightDate(call_number) {
             return call_number.substr(call_number.length - 4, 4);
@@ -250,19 +251,45 @@ export default {
             return marc_tag[0].pivot.value ? marc_tag[0].pivot.value : "";
         },
         getBibByCourse() {
-            this.bibs_by_course = this.bibs.filter(bib => {
-                return bib.subjects.find(subject => {
-                    return this.selected_course.id === subject.course_id;
+            axios
+                .get("/subject/by-course?course_id=" + this.selected_course.id)
+                .then(response => {
+                    this.bibs_by_course = response.data;
+                    this.formatExportData();
+                    this.export();
+                })
+                .catch(err => {
+                    console.log(err);
                 });
-            });
-
-            if (this.bibs_by_course.length > 0)
+        },
+        export() {
+            if (this.formatted_export_data.length > 0)
                 this.selected_course_name = this.selected_course.name.toUpperCase();
             this.$nextTick(() => {
                 this.export2Doc(
                     "word-doc",
                     "Reports for " + this.selected_course.name
                 );
+            });
+        },
+        formatExportData() {
+            console.log("asdasd");
+            this.bibs_by_course.forEach(data => {
+                data.bibs.forEach(bib => {
+                    this.formatted_export_data.push({
+                        code: data.code,
+                        info:
+                            this.getSpecificTag(bib.marc_tags, "245") +
+                            " " +
+                            this.getSpecificTag(bib.marc_tags, "100") +
+                            " " +
+                            this.getSpecificTag(bib.marc_tags, "260") +
+                            " " +
+                            this.getSpecificTag(bib.marc_tags, "245"),
+                        volumes: bib.volumes.length,
+                        call_number: this.getSpecificTag(bib.marc_tags, "082")
+                    });
+                });
             });
         },
         getCourses() {

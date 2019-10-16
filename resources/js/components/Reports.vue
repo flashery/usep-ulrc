@@ -77,6 +77,7 @@
         <hr />
         <!-- START COLLECTION PER COLLEGE -->
         <h4 class="report-title mb-3">{{collection_per_college.title}}</h4>
+        <a href="javascript:void(0)" @click="exportReport('collection_per_college')">Download Report</a>
         <div class="col-md-12">
             <el-select
                 @change="getCollectionPerCollege()"
@@ -137,7 +138,10 @@
         <!-- END COLLECTION PER COLLEGE -->
         <!-- START ALL COLLECTION NOT USED -->
         <h4 class="report-title mb-3">{{all_collection_not_used.title}}</h4>
-        <a href="javascript:void(0)" @click="exportReport('all_collection_not_used')">Download Report</a>
+        <a
+            href="javascript:void(0)"
+            @click="exportReport('all_collection_not_used')"
+        >Download Report</a>
         <div class="col-md-12">
             <bar-chart
                 v-show="all_collection_not_used.reports"
@@ -267,6 +271,21 @@ export default {
                         .get(
                             "/reports/export?type=all_collection_per_college&course_id=" +
                                 this.all_collection_per_college.course.id
+                        )
+                        .then(res => {
+                            this.download_url = res.data;
+                            this.download();
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                    break;
+                case "collection_per_college":
+                    axios
+                        .get(
+                            "/reports/export?department_id=" +
+                                this.collection_per_college.department.id +
+                                "&type=collection_per_college"
                         )
                         .then(res => {
                             this.download_url = res.data;
@@ -618,10 +637,10 @@ export default {
                             object.labels.push(key);
 
                             // if (inner_index !== 0) {
-                                console.log(inner_index, report[key], key);
-                                object.data[object_data_ctr].values.push(
-                                    report[key]
-                                );
+                            console.log(inner_index, report[key], key);
+                            object.data[object_data_ctr].values.push(
+                                report[key]
+                            );
                             // }
                             inner_index++;
                         });
@@ -664,7 +683,7 @@ export default {
 .el-select {
     margin: 20px 0;
 }
-.report-title{
+.report-title {
     text-transform: uppercase;
 }
 </style>
