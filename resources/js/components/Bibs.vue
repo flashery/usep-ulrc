@@ -467,6 +467,7 @@ export default {
                 .get("/bib?page=" + val)
                 .then(response => {
                     this.bibs = response.data.data;
+                    this.arrangeBibs();
                     this.makePagination(response.data);
                     this.loading = false;
                 })

@@ -637,7 +637,6 @@ export default {
                             object.labels.push(key);
 
                             // if (inner_index !== 0) {
-                            console.log(inner_index, report[key], key);
                             object.data[object_data_ctr].values.push(
                                 report[key]
                             );
