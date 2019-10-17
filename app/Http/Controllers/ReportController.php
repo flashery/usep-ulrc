@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Bib;
 use Illuminate\Http\Request;
 use App\Department;
 use App\Repositories\Reports\AllCollectionNotUsed;
@@ -23,7 +24,6 @@ class ReportController extends Controller
 
     public function index(Request $request)
     {
-
         $reports = [];
 
         if ($request->ajax()) {

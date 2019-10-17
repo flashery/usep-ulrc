@@ -19,7 +19,7 @@ class AllCollectionRepository extends ReportsRepository
     protected $report_path = '';
     private $data = [];
     protected const TITLE = 'All Collection';
-    
+
     public function __construct(array $data)
     {
         $this->report_path = public_path() . '/downloadable';
@@ -36,13 +36,9 @@ class AllCollectionRepository extends ReportsRepository
 
         $bibs = [];
 
-        $data['department_id'] = 20;
-
-
         $bib_repo = new BibRepository();
 
         $bibs = $bib_repo->getBibs($data);
-
         if (sizeof($bibs) === 0) return [];
 
         $reports = [];
@@ -62,10 +58,9 @@ class AllCollectionRepository extends ReportsRepository
 
                 // Get the Dewey decimal by extracting the first three characters of the Call Number value
                 $Dewey_decimal =  $bib_repo->getDeweyDecimal($call_number);
-
                 // Compare value if the same as the current index number
                 if ($Dewey_decimal >= $start && $Dewey_decimal <= $end) {
-
+                    
                     // Get the number of volumes of this bib
                     $volume += sizeof($bib->volumes);
                     $no_of_title++;
