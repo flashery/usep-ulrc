@@ -62,7 +62,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(bib, index) in bibs" :key="index">
+                <tr v-for="(bib, index) in  sorted_bibs" :key="index">
                     <td>{{getSpecificTag(bib.marc_tags,'082')}}</td>
                     <td>{{getSpecificTag(bib.marc_tags,'245')}}</td>
                     <td>{{getSpecificTag(bib.marc_tags,'100')}}</td>
@@ -212,6 +212,7 @@ export default {
             },
             formatted_export_data: [],
             bibs: [],
+            sorted_bibs: [],
             courses: [],
             selected_course: { name: "" },
             selected_course_name: "",
@@ -309,6 +310,7 @@ export default {
                 .get("/bib?page=" + 1)
                 .then(response => {
                     this.bibs = response.data.data;
+                    this.arrangeBibs();
                     this.makePagination(response.data);
                     this.loading = false;
                 })
@@ -320,6 +322,19 @@ export default {
                         type: "error"
                     });
                 });
+        },
+        arrangeBibs() {
+            let bibs = [];
+            this.sorted_bibs = this.bibs.sort((a, b) => {
+                let dewey_decimal_a = parseInt(
+                    this.getSpecificTag(a.marc_tags, "082").substring(5, 8)
+                );
+                let dewey_decimal_b = parseInt(
+                    this.getSpecificTag(b.marc_tags, "082").substring(5, 8)
+                );
+
+                return dewey_decimal_a - dewey_decimal_b;
+            });
         },
         addNewBib() {
             this.current_bib = {
