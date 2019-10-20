@@ -7,16 +7,19 @@
             <div class="btn-toolbar mb-2 mb-md-0">
                 <el-button-group>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-school"
                         @click="addNewDepartment"
                     >New Department</el-button>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-notebook-1"
                         @click="addNewCourse"
                     >New Course</el-button>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-notebook-2"
                         @click="addNewSubject"
@@ -26,6 +29,7 @@
         </div>
         <h4 class="mb-3">Departments</h4>
         <departments
+         :authenticated_user="authenticated_user"
             @edit-department="editDepartment"
             @edit-course="editCourse"
             @deleted="departmentDeleted"
@@ -34,6 +38,7 @@
             v-loading="load_departments"
         ></departments>
         <subject-modal
+            v-if="authenticated_user.can_edit"
             @close="subject_dlg_show = false"
             @added="subjectAdded"
             @updated="subjectUpdated"
@@ -44,6 +49,7 @@
             :p_departments="departments"
         ></subject-modal>
         <department-modal
+            v-if="authenticated_user.can_edit"
             @close="department_dlg_show = false"
             @added="departmentAdded"
             @updated="departmentUpdated"
@@ -53,6 +59,7 @@
             :department_dlg_show="department_dlg_show"
         ></department-modal>
         <course-modal
+            v-if="authenticated_user.can_edit"
             @close="course_dlg_show = false"
             @added="courseAdded"
             @updated="courseUpdated"
@@ -66,6 +73,7 @@
             @close="view_subject_dlg_show = false"
             @edit-subject="editSubject"
             @deleted="subjectDeleted"
+            :authenticated_user="authenticated_user"
             :p_department="current_deparment"
             :p_course="current_course"
             :p_subjects="subjects"
@@ -94,6 +102,7 @@ export default {
     },
     data() {
         return {
+            authenticated_user: window.Laravel.user,
             mode: "CREATE",
             load_departments: false,
             department_dlg_show: false,
@@ -202,7 +211,7 @@ export default {
             this.current_subject = subject;
             this.subject_dlg_show = true;
         },
-       
+
         subjectAdded() {
             this.getDepartments();
         },

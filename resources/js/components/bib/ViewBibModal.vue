@@ -4,17 +4,30 @@
         :title="title"
         :visible.sync="show_view_bib_modal"
         :before-close="handleClose"
-        width="75%"
+        width="55%"
     >
+        <h5>Bib details</h5>
         <!-- For view only -->
-        <table class="table">
+
+        <table>
             <tbody>
                 <tr v-for="(marc_tag, index) in bib.marc_tags" :key="index">
-                    <td>{{marc_tag.non_marc_tag}}</td>
-                    <td>{{marc_tag.pivot.value}}</td>
+                    <td v-if="marc_tag.value && marc_tag.value !== ''">
+                        <strong style="margin-right: 20px;">{{marc_tag.non_marc_tag}}</strong>
+                    </td>
+                    <td v-if="marc_tag.value && marc_tag.value !== ''">{{marc_tag.value}}</td>
                 </tr>
             </tbody>
         </table>
+        <h5>Subjects</h5>
+        <el-form v-for="(subject, index) in bib.subjects" :key="index">
+            <el-form-item label="Subject code:">
+                <span>{{ subject.course_code}}</span>
+            </el-form-item>
+            <el-form-item label="Subject description:">
+                <span>{{ subject.name}}</span>
+            </el-form-item>
+        </el-form>
     </el-dialog>
 </template>
 
@@ -46,4 +59,24 @@ export default {
 </script>
 
 <style>
+table {
+    margin-bottom: 20px;
+    padding: 10px;
+}
+form.el-form {
+    padding: 10px;
+}
+label.el-form-item__label {
+    font-weight: bold;
+    margin: 0;
+}
+td {
+    padding: 7px;
+}
+.el-form-item {
+    margin-bottom: 0;
+}
+label.el-form-item__label, .el-form-item__content {
+    line-height: 35px;
+}
 </style>

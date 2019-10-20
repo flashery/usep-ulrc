@@ -6,14 +6,6 @@
             <hr class="my-4" />
             <p class="lead">Please click on one of the program that you are interested in below.</p>
         </div>
-        <!-- <div class="col-md-3">
-            <div class="card">
-                <div class="card-body">
-                    <h1>General</h1>
-                    <h2>Education Subjects</h2>
-                </div>
-            </div>
-        </div>-->
         <div v-for="(department, index) in departments" :key="index" class="col-md-3">
             <div class="card">
                 <a href="/search">

@@ -8,7 +8,7 @@
     >
         <h2 style="text-align: center;">{{ department.name }}</h2>
         <h3 style="text-align: center;">{{ course.name }}</h3>
-        <hr>
+        <hr />
         <el-table :data="subjects">
             <el-table-column label="Code" prop="code"></el-table-column>
             <el-table-column label="Name" prop="name"></el-table-column>
@@ -17,12 +17,14 @@
                 <template slot-scope="scope">
                     <el-button-group>
                         <el-button
+                            :disabled="!authenticated_user.can_edit"
                             size="small"
                             type="primary"
                             icon="el-icon-edit"
                             @click="editSubject(scope.row)"
                         >Edit</el-button>
                         <el-button
+                            :disabled="!authenticated_user.can_edit"
                             size="small"
                             type="danger"
                             icon="el-icon-delete"
@@ -45,6 +47,7 @@ const MODE_CREATE = "CREATE";
 const MODE_UPDATE = "UPDATE";
 export default {
     props: [
+        "authenticated_user",
         "mode",
         "view_subject_dlg_show",
         "p_department",
@@ -61,7 +64,7 @@ export default {
             this.$emit("close");
         },
         editSubject(subject) {
-            this.$emit('edit-subject',subject);
+            this.$emit("edit-subject", subject);
         },
         deleteSubject(subject) {
             this.$confirm(
@@ -77,7 +80,7 @@ export default {
                     axios
                         .delete("/subject/" + subject.id)
                         .then(response => {
-                            this.$emit('deleted');
+                            this.$emit("deleted");
 
                             // this.subjects.splice(
                             //     this.subjects.indexOf(subject),
@@ -105,7 +108,7 @@ export default {
                         message: "Delete canceled"
                     });
                 });
-        },
+        }
     },
     computed: {
         subjects() {

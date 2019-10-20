@@ -159,9 +159,18 @@ class BibController extends Controller
             $volume = $bib->volumes()->updateOrCreate(['id' => $volume['id']], $volume);
             array_push($volume_ids, $volume['id']);
         }
+
         $bib->bib_marc_tags()->whereNotIn('id', $bib_tag_ids)->delete();
         $bib->volumes()->whereNotIn('id', $volume_ids)->delete();
         $bib->subjects()->sync($bib_subjects);
+    }
+
+
+    public function updateBibViews($id)
+    {
+        $bib = Bib::find($id);
+        $bib->views += 1;
+        $bib->save();
     }
 
     /**

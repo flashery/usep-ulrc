@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -23,9 +24,14 @@ class UserController extends Controller
         return view('users', compact('users'));
     }
 
-    public function store() 
+    public function store(Request $request)
     {
-        
+        return User::create([
+            'name' => $request->get('name'),
+            'email' => $request->get('email'),
+            'can_edit' => $request->get('email'),
+            'password' => Hash::make($request->get('password')),
+        ]);
     }
 
     public function profile()
@@ -37,7 +43,13 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $success = $user->update($request->all());
+        $data = $request->all();
+
+        if ($request->has('password')) {
+            $data['password'] = Hash::make($request->get('password'));
+        }
+        
+        $success = $user->update($data);
 
         return response()->json($success);
     }

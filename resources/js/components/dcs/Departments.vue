@@ -3,7 +3,7 @@
         <el-table-column type="expand">
             <template slot-scope="props">
                 <h3>Courses</h3>
-                <hr>
+                <hr />
                 <ul>
                     <li v-for="(course, index) in props.row.courses" :key="index">
                         <el-row :gutter="20">
@@ -17,6 +17,7 @@
                                         @click="viewSubjects(course)"
                                     >View Subjects</el-button>
                                     <el-button
+                                        :disabled="!authenticated_user.can_edit"
                                         size="small"
                                         type="primary"
                                         icon="el-icon-edit"
@@ -24,6 +25,7 @@
                                     >Edit</el-button>
 
                                     <el-button
+                                        :disabled="!authenticated_user.can_edit"
                                         size="small"
                                         type="danger"
                                         icon="el-icon-delete"
@@ -38,7 +40,7 @@
         </el-table-column>
         <el-table-column width="120">
             <template slot-scope="scope">
-                <img :src="scope.row.image | noImage" class="avatar avatar-medium">
+                <img :src="scope.row.image | noImage" class="avatar avatar-medium" />
             </template>
         </el-table-column>
         <el-table-column label="Name" prop="name"></el-table-column>
@@ -47,12 +49,14 @@
             <template slot-scope="scope">
                 <el-button-group>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         size="small"
                         type="primary"
                         icon="el-icon-edit"
                         @click="editDepartment(scope.row)"
                     >Edit</el-button>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         size="small"
                         type="danger"
                         icon="el-icon-delete"
@@ -66,14 +70,13 @@
 
 <script>
 export default {
-    props: ["p_deparments"],
+    props: ["authenticated_user", "p_deparments"],
     data() {
         return {
             expand_all: true
         };
     },
     methods: {
-
         editDepartment(department) {
             this.$emit("edit-department", department);
         },
@@ -156,9 +159,8 @@ export default {
                     });
                 });
         },
-        viewSubjects(course)
-        {
-            this.$emit('view-subjects', course);
+        viewSubjects(course) {
+            this.$emit("view-subjects", course);
         }
     },
     computed: {

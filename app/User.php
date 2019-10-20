@@ -16,7 +16,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'gender', 'position_id', 'address', 'image',
+        'name', 'email', 'password', 'can_edit', 'gender', 'position_id', 'address', 'image',
     ];
 
     /**
@@ -35,5 +35,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'can_edit' => 'boolean',
     ];
 }

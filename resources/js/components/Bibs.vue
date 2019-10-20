@@ -6,13 +6,20 @@
             <h1 class="h2">List of Bibs</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
                 <el-button-group>
-                    <el-button type="primary" icon="el-icon-collection" @click="addNewBib">New Bib</el-button>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
+                        type="primary"
+                        icon="el-icon-collection"
+                        @click="addNewBib"
+                    >New Bib</el-button>
+                    <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-collection-tag"
                         @click="addMarcTag"
                     >New MARC</el-button>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-s-order"
                         @click="viewMarcTags"
@@ -39,6 +46,7 @@
                         ></el-option>
                     </el-select>
                     <el-button
+                        :disabled="!authenticated_user.can_edit"
                         type="primary"
                         icon="el-icon-download"
                         @click="getCourses()"
@@ -73,12 +81,14 @@
                     <td style="width: 111px;">
                         <el-button-group>
                             <el-button
+                                :disabled="!authenticated_user.can_edit"
                                 size="mini"
                                 type="primary"
                                 icon="el-icon-edit"
                                 @click="editBib(bib)"
                             ></el-button>
                             <el-button
+                                :disabled="!authenticated_user.can_edit"
                                 size="mini"
                                 type="danger"
                                 icon="el-icon-delete"
@@ -147,16 +157,8 @@
                 :total="pagination.total"
             ></el-pagination>
         </div>
-        <!-- <el-table :data="bibs">
-            <el-table-column type="expand">
-                <template slot-scope="props">
-                    <ul>
-                        <li v-for="(marc_tag, index) in props.row.marc_tags" :key="index">{{marc_tag.non_marc_tag}}</li>
-                    </ul>
-                </template>
-            </el-table-column>
-        </el-table>-->
         <bib-modal
+            v-if="authenticated_user.can_edit"
             ref="bib_modal"
             @added="bibAdded"
             @updated="bibUpdated"
@@ -168,6 +170,7 @@
             :show_bib_modal="show_bib_modal"
         ></bib-modal>
         <marc-tag-modal
+            v-if="authenticated_user.can_edit"
             @added="marcTagAdded"
             @updated="marcTagUpdated"
             @close="show_marc_tag_modal = false"
@@ -176,6 +179,7 @@
             :show_marc_tag_modal="show_marc_tag_modal"
         ></marc-tag-modal>
         <view-marc-tags
+            v-if="authenticated_user.can_edit"
             @deleted="marcTagDeleted"
             @edit-marc-tag="editMarcTag"
             @updated="marcTagUpdated"
@@ -199,6 +203,7 @@ export default {
     components: { BibModal, MarcTagModal, ViewMarcTags },
     data() {
         return {
+            authenticated_user: window.Laravel.user,
             loading: false,
             show_bib_modal: false,
             show_marc_tag_modal: false,

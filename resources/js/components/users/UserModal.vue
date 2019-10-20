@@ -16,16 +16,22 @@
             <el-form-item label="Name" prop="name">
                 <el-input v-model="form.name"></el-input>
             </el-form-item>
-            <el-form-item label="Email" prop="name">
+            <el-form-item label="Email" prop="email">
                 <el-input v-model="form.email"></el-input>
             </el-form-item>
             <el-form-item label="Password" prop="password">
-                <el-input v-model="form.password"></el-input>
+                <el-input type="password" v-model="form.password"></el-input>
+            </el-form-item>
+            <el-form-item label="Can Edit">
+                <el-checkbox v-model="form.can_edit"></el-checkbox>
             </el-form-item>
             <el-form-item label="Confirm Password" prop="password_confirmation">
-                <el-input v-model="form.password_confirmation"></el-input>
+                <el-input type="password" v-model="form.password_confirmation"></el-input>
             </el-form-item>
         </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button type="default" :icon="icon" @click="submit()">{{action}}</el-button>
+        </div>
     </el-dialog>
 </template>
 <script>
@@ -36,8 +42,10 @@ export default {
             if (value === "") {
                 callback(new Error("Please input the password"));
             } else {
-                if (this.form.password1 !== "") {
-                    this.$refs.form.validateField("password1");
+                if (this.form.password_confirmation !== "") {
+                    this.$refs["user_form"].validateField(
+                        "password_confirmation"
+                    );
                 }
                 callback();
             }
@@ -45,7 +53,7 @@ export default {
         var validatePass2 = (rule, value, callback) => {
             if (value === "") {
                 callback(new Error("Please input the password again"));
-            } else if (value !== this.form.password2) {
+            } else if (value !== this.form.password) {
                 callback(new Error("Two inputs don't match!"));
             } else {
                 callback();
@@ -56,54 +64,78 @@ export default {
             rules: {
                 name: [
                     {
-                        type: "array",
                         required: true,
-                        message: "Please select at least one department",
-                        trigger: "change"
+                        message: "Please input name",
+                        trigger: "blur"
                     }
                 ],
                 email: [
                     {
                         required: true,
-                        message: "Please input a course name",
-                        trigger: "blur"
-                    },
-                    {
-                        min: 1,
-                        max: 255,
-                        message: "Name should be atleast to 1 to 255 letters",
+                        message: "Please input a email",
                         trigger: "blur"
                     }
                 ],
                 password: [
-                    {
-                        required: true,
-                        message: "Please select an image",
-                        trigger: "change"
-                    }
+                    { required: true, validator: validatePass, trigger: "blur" }
                 ],
-                 password_confirmation: [
+                password_confirmation: [
                     {
                         required: true,
-                        message: "Please select an image",
-                        trigger: "change"
+                        validator: validatePass2,
+                        trigger: "blur"
                     }
                 ]
-
             }
         };
     },
     methods: {
+        submit() {
+            this.$refs["user_form"].validate(valid => {
+                if (valid) {
+                    if (this.mode === "CREATE") {
+                        this.createUser();
+                    } else {
+                        this.updateUser();
+                    }
+                } else {
+                    return false;
+                }
+            });
+        },
         handleClose() {
             this.$emit("close");
         },
         createUser() {
-            axios.post('/register', this.form).then()
+            axios
+                .post("/user", this.form)
+                .then(res => {
+                    this.$emit("added", res.data);
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        },
+        updateUser() {
+            axios
+                .patch("/user/" + this.form.id, this.form)
+                .then(res => {
+                    this.$emit('close');                    
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         }
     },
     computed: {
         title() {
             return this.mode === "CREATE" ? "New" : "UPDATE";
+        },
+        action() {
+            return this.mode === "CREATE" ? "Add" : "Update";
+        },
+        icon() {
+            return this.mode === "CREATE" ? "el-icon-plus" : "el-icon-refresh";
         },
         form() {
             return this.user;

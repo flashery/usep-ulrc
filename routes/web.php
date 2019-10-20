@@ -26,7 +26,7 @@ Route::get('/reports/export', 'ReportController@export')->name('report');
 Route::get('/profile', 'UserController@profile')->name('profile');
 Route::get('/subject/by-course', 'SubjectController@byCourse');
 Route::get('/bib/by-course', 'BibController@byCourse');
-
+Route::patch('/bib/update-bib-view/{id}', 'BibController@updateBibViews');
 Route::resource('/department', 'DepartmentController');
 Route::resource('/search', 'SearchController');
 Route::resource('/search-history', 'SearchHistoryController');

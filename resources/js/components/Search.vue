@@ -21,11 +21,6 @@
                     @keyup.enter="handleKeyPress"
                     v-model="keyword"
                 />
-                <!-- <i
-                    class="el-icon-search el-input__icon"
-                    style="position: absolute;top: 0;right: 30px;"
-                    slot="suffix"
-                />-->
                 <ul v-if="show_histories" id="search-histories">
                     <li v-for="(history, index) in search_histories" :key="index">
                         <a
@@ -35,19 +30,12 @@
                     </li>
                 </ul>
             </div>
-            <!-- <div class="col-md-2">
-                <el-select v-model="search_type">
-                    <el-option label="Title" value="title"></el-option>
-                    <el-option label="Subject" value="subject"></el-option>
-                    <el-option label="Author" value="author"></el-option>
-                </el-select>
-            </div>-->
         </div>
         <hr />
         <div class="row">
             <div class="col-md-12">
                 <h4 class="mb-3">Bibs search results</h4>
-                <table v-loading="loading" class="table">
+                <!-- <table v-loading="loading" class="table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -65,6 +53,40 @@
                                     href="javascript:void(0)"
                                     @click="setUpBibData(bib)"
                                 >{{getSpecificTag(bib.marc_tags,'245')}}</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>-->
+                <table class="table" v-loading="loading">
+                    <thead>
+                        <tr>
+                            <th scope="col">Call Number</th>
+                            <th scope="col">Book Titles</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Accession Number</th>
+                            <th scope="col">Copyright</th>
+                            <th scope="col">No. of Titles</th>
+                            <th scope="col">No. of Volumes</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(bib, index) in  bibs" :key="index">
+                            <td>{{getSpecificTag(bib.marc_tags,'082')}}</td>
+                            <td>{{getSpecificTag(bib.marc_tags,'245')}}</td>
+                            <td>{{getSpecificTag(bib.marc_tags,'100')}}</td>
+                            <td>{{getSpecificTag(bib.marc_tags,'016')}}</td>
+                            <td>{{getCopyrightDate(getSpecificTag(bib.marc_tags,'082'))}}</td>
+                            <td>1</td>
+                            <td>{{ bib.volumes.length}}</td>
+                            <td style="width: 111px;">
+                                <el-button-group>
+                                    <el-button
+                                        size="mini"
+                                        type="primary"
+                                        @click="setUpBibData(bib)"
+                                    >{{ action }}</el-button>
+                                </el-button-group>
                             </td>
                         </tr>
                     </tbody>
@@ -99,8 +121,8 @@ export default {
     components: { BibModal, ViewBibModal },
     data() {
         return {
+            authenticated_user: window.Laravel.user,
             loading: false,
-            authenticated: window.Laravel.user.authenticated,
             show_view_bib_modal: false,
             show_bib_modal: false,
             mode: MODE_UPDATE,
@@ -146,7 +168,10 @@ export default {
             this.loading = true;
             this.hideHistories();
             // Search immidiately if user is not authenticated
-            if (this.authenticated) {
+            if (
+                this.authenticated_user.authenticated &&
+                this.authenticated_user.can_edit
+            ) {
                 axios
                     .post("/search-history", { keywords: this.keyword })
                     .then(response => {
@@ -199,22 +224,53 @@ export default {
             this.search(this.keyword);
         },
         setUpBibData(bib) {
+            this.updateBibViews(bib.id);
+            this.$refs["bib_modal"].setSubjects(bib.subjects);
+
             this.current_bib.id = bib.id;
             this.current_bib.volumes = bib.volumes;
-            this.current_bib.subjects = bib.subjects.map(subject => {
-                return subject.id;
-            });
-            this.current_bib.marc_tags = bib.marc_tags;
 
-            if (this.authenticated) {
-                this.editBib();
+            this.current_bib.marc_tags = bib.marc_tags.map(marc_tag => {
+                let data = {
+                    id: marc_tag.id,
+                    marc_tag: marc_tag.marc_tag,
+                    non_marc_tag: marc_tag.non_marc_tag,
+                    show_as_default: marc_tag.show_as_default,
+                    marc_tag: marc_tag.marc_tag,
+                    marc_tag: marc_tag.marc_tag,
+                    value: marc_tag.pivot.value
+                };
+                return data;
+            });
+
+            if (
+                this.authenticated_user.authenticated &&
+                this.authenticated_user.can_edit
+            ) {
+                this.current_bib.subjects = bib.subjects.map(subject => {
+                    return subject.id;
+                });
+
+                this.editBib(bib);
             } else {
+                this.current_bib.subjects = bib.subjects;
                 this.show_view_bib_modal = true;
             }
         },
-        editBib() {
+        updateBibViews(id) {
+            axios
+                .patch("/bib/update-bib-view/" + id)
+                .then(res => {})
+                .catch(err => {
+                    console.log(err);
+                });
+        },
+        editBib(bib) {
             this.mode = MODE_UPDATE;
             this.show_bib_modal = true;
+        },
+        getCopyrightDate(call_number) {
+            return call_number.substr(call_number.length - 4, 4);
         },
         // MARC TAG
         getMarcTags() {
@@ -235,6 +291,18 @@ export default {
     mounted() {
         this.getSearchHistories();
         this.getMarcTags();
+    },
+    computed: {
+        action() {
+            if (
+                this.authenticated_user.authenticated &&
+                this.authenticated_user.can_edit
+            ) {
+                return "View / Edit bib";
+            } else {
+                return "More detail..";
+            }
+        }
     }
 };
 </script>

@@ -31,10 +31,4 @@ class SearchController extends Controller
         return view('search');
     }
 
-    public function updateBibViews(Request $request)
-    {
-        $bib = Bib::find($request->get('id'));
-        $bib->views += 1;
-        $bib->save();
-    }
 }

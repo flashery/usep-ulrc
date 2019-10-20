@@ -32,6 +32,7 @@
                                         'name' => auth()->check() ? auth()->user()->name : null,
                                         'position_id' =>  auth()->check() ? auth()->user()->permission_id : null,
                                         'image' =>  auth()->check() ? auth()->user()->image : null,
+                                        'can_edit' => auth()->check() ? auth()->user()->can_edit : null,
                                     ]
                                 ]
                             );
