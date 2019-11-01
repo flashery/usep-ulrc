@@ -118,7 +118,7 @@
                 <h3 align="center">University Learning Resource Center</h3>
                 <p
                     align="center"
-                >{{ selected_course_name }} As of {{ current_month_year }}</p>
+                >{{ selected_course_name }} as of {{ current_month_year }}</p>
 
                 <table class="table" style="width:100%;" v-loading="loading">
                     <tr>
