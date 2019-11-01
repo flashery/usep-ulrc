@@ -342,7 +342,9 @@ main.normal-pages {
     #search-area {
         width: 100%;
     }
-    #search-area .el-row {
+    #search-ar.el-form-item {
+        margin-bottom: 20px;
+    }a .el-row {
         width: 90%;
         margin: 0 auto;
     }
@@ -357,6 +359,11 @@ main.normal-pages {
         color: #ccc;
     }
 }
+
+.el-form-item {
+    margin-bottom: 20px;
+}
+
 .el-dialog {
     border-radius: 10px;
 }

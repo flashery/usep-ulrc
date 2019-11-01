@@ -15,7 +15,6 @@
                 </el-button-group>
             </div>
         </div>
-        <h4 class="mb-3">Users</h4>
         <table class="table" v-loading="loading">
             <thead>
                 <tr>

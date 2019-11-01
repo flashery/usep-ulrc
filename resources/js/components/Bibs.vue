@@ -118,7 +118,7 @@
                 <h3 align="center">University Learning Resource Center</h3>
                 <p
                     align="center"
-                >{{ selected_course_name }} IN __________________ As of {{ current_month_year }}</p>
+                >{{ selected_course_name }} As of {{ current_month_year }}</p>
 
                 <table class="table" style="width:100%;" v-loading="loading">
                     <tr>
@@ -289,9 +289,7 @@ export default {
                             " " +
                             this.getSpecificTag(bib.marc_tags, "100") +
                             " " +
-                            this.getSpecificTag(bib.marc_tags, "260") +
-                            " " +
-                            this.getSpecificTag(bib.marc_tags, "245"),
+                            this.getSpecificTag(bib.marc_tags, "260"),
                         volumes: bib.volumes.length,
                         call_number: this.getSpecificTag(bib.marc_tags, "082")
                     });

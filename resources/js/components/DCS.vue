@@ -37,18 +37,8 @@
             :p_deparments="departments"
             v-loading="load_departments"
         ></departments>
-        <subject-modal
-            v-if="authenticated_user.can_edit"
-            @close="subject_dlg_show = false"
-            @added="subjectAdded"
-            @updated="subjectUpdated"
-            @deleted="subjectDeleted"
-            :mode="mode"
-            :p_subject="current_subject"
-            :subject_dlg_show="subject_dlg_show"
-            :p_departments="departments"
-        ></subject-modal>
-        <department-modal
+
+         <department-modal
             v-if="authenticated_user.can_edit"
             @close="department_dlg_show = false"
             @added="departmentAdded"
@@ -58,6 +48,7 @@
             :p_department="current_deparment"
             :department_dlg_show="department_dlg_show"
         ></department-modal>
+        
         <course-modal
             v-if="authenticated_user.can_edit"
             @close="course_dlg_show = false"
@@ -69,6 +60,19 @@
             :course_dlg_show="course_dlg_show"
             :p_departments="departments"
         ></course-modal>
+
+        <subject-modal
+            v-if="authenticated_user.can_edit"
+            @close="subject_dlg_show = false"
+            @added="subjectAdded"
+            @updated="subjectUpdated"
+            @deleted="subjectDeleted"
+            :mode="mode"
+            :p_subject="current_subject"
+            :subject_dlg_show="subject_dlg_show"
+            :p_departments="departments"
+        ></subject-modal>
+        
         <view-subjects-modal
             @close="view_subject_dlg_show = false"
             @edit-subject="editSubject"

@@ -42,6 +42,7 @@ class AllCollectionRepository extends ReportsRepository
         if (sizeof($bibs) === 0) return [];
 
         $reports = [];
+
         $Dewey_decimals_ranges = $this->generateRanges();
 
         foreach ($Dewey_decimals_ranges as $range) {
@@ -84,7 +85,7 @@ class AllCollectionRepository extends ReportsRepository
         $spreadsheet = new Spreadsheet();
         $worksheet = $spreadsheet->getActiveSheet();
 
-        $this->insertLogo($worksheet);
+        $this->insertLogo($worksheet, self::TITLE);
 
         $worksheet->fromArray($data, null, 'A10');
         // Set the Labels for each data series we want to plot

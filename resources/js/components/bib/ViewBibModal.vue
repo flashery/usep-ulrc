@@ -73,9 +73,6 @@ label.el-form-item__label {
 td {
     padding: 7px;
 }
-.el-form-item {
-    margin-bottom: 0;
-}
 label.el-form-item__label, .el-form-item__content {
     line-height: 35px;
 }

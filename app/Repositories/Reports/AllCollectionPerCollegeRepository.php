@@ -82,7 +82,7 @@ class AllCollectionPerCollegeRepository extends ReportsRepository
         $spreadsheet = new Spreadsheet();
         $worksheet = $spreadsheet->getActiveSheet();
 
-        $this->insertLogo($worksheet);
+        $this->insertLogo($worksheet, self::TITLE);
 
         $worksheet->fromArray($data, null, 'A10');
         // Set the Labels for each data series we want to plot

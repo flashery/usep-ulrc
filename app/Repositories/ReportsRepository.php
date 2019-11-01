@@ -35,7 +35,7 @@ class ReportsRepository
         return $data;
     }
 
-    protected function insertLogo($worksheet)
+    protected function insertLogo($worksheet, $report_title)
     {
         $drawing = new Drawing();
         $drawing->setName('Paid');
@@ -85,7 +85,7 @@ class ReportsRepository
         $worksheet->getStyle('B2:G2')->applyFromArray($sub_title_style);
 
         // Add description
-        $description = 'Graphical Representation of All Collections';
+        $description = $report_title;
         $description_style = array(
             'alignment' => array(
                 'horizontal' => Alignment::HORIZONTAL_CENTER,
