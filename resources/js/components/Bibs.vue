@@ -33,16 +33,16 @@
                     style="margin-left:10px"
                 >
                     <el-select
-                        v-model="selected_course"
-                        @change="getBibByCourse()"
-                        placeholder="Select a course"
+                        v-model="selected_subject"
+                        @change="getBibBySubject()"
+                        placeholder="Select a subject"
                         value-key="id"
                     >
                         <el-option
-                            v-for="course in courses"
-                            :key="course.value"
-                            :label="course.name"
-                            :value="course"
+                            v-for="subject in subjects"
+                            :key="subject.value"
+                            :label="subject.name"
+                            :value="subject"
                         ></el-option>
                     </el-select>
                     <el-button
@@ -116,18 +116,13 @@
                 </table>
                 <h1 align="center">University of Southeastern Philippines</h1>
                 <h3 align="center">University Learning Resource Center</h3>
-                <p
-                    align="center"
-                >{{ selected_course_name }} as of {{ current_month_year }}</p>
+                <p style="font-weight:bold" align="center">{{ selected_subject_name }}</p>
+                <p align="center">As of {{ current_month_year }}</p>
 
                 <table class="table" style="width:100%;" v-loading="loading">
                     <tr>
-                        <th rowspan="2" width="20" scope="col">Course Code/Title</th>
-                        <th
-                            rowspan="2"
-                            width="20"
-                            scope="col"
-                        >Title Author. (year). Title. Place. Publishing</th>
+                        <th rowspan="2" width="20" scope="col">Course Code/Description</th>
+                        <th rowspan="2" width="20" scope="col">Title</th>
                         <th colspan="2" width="220" scope="col">Overall Collection</th>
                         <th rowspan="2" width="220" scope="col">Call Number</th>
                     </tr>
@@ -219,13 +214,13 @@ export default {
             bibs: [],
             sorted_bibs: [],
             courses: [],
-            selected_course: { name: "" },
-            selected_course_name: "",
+            selected_subject: { name: "" },
+            selected_subject_name: "",
             current_month_year: format(new Date(), "MMMM YYYY"),
             marc_tags: [],
             subjects: [],
             pagination: {},
-            bibs_by_course: []
+            bibs_by_subject: []
         };
     },
 
@@ -238,14 +233,17 @@ export default {
             this.getMarcTags();
             this.getBibs();
         },
+
         sortBibs() {
             this.bibs.sort((a, b) => {
                 console.log(a);
             });
         },
+
         getCopyrightDate(call_number) {
             return call_number.substr(call_number.length - 4, 4);
         },
+
         getSpecificTag(marc_tags, col) {
             let marc_tag = {};
 
@@ -256,11 +254,12 @@ export default {
 
             return marc_tag[0].pivot.value ? marc_tag[0].pivot.value : "";
         },
-        getBibByCourse() {
+
+        getBibBySubject() {
             axios
-                .get("/subject/by-course?course_id=" + this.selected_course.id)
+                .get("/bib/by-subject?id=" + this.selected_subject.id)
                 .then(response => {
-                    this.bibs_by_course = response.data;
+                    this.bibs_by_subject = response.data;
                     this.formatExportData();
                     this.export();
                 })
@@ -268,22 +267,25 @@ export default {
                     console.log(err);
                 });
         },
+
         export() {
             if (this.formatted_export_data.length > 0)
-                this.selected_course_name = this.selected_course.name.toUpperCase();
+                this.selected_subject_name = this.selected_subject.name.toUpperCase();
             this.$nextTick(() => {
                 this.export2Doc(
                     "word-doc",
-                    "Reports for " + this.selected_course.name
+                    "Reports for " + this.selected_subject.name
                 );
             });
         },
+
         formatExportData() {
-            console.log("asdasd");
-            this.bibs_by_course.forEach(data => {
+            this.formatted_export_data = [];
+            this.bibs_by_subject.forEach(data => {
+                let index = 0;
                 data.bibs.forEach(bib => {
                     this.formatted_export_data.push({
-                        code: data.code,
+                        code: index === 0 ? data.code : "",
                         info:
                             this.getSpecificTag(bib.marc_tags, "245") +
                             " " +
@@ -293,14 +295,15 @@ export default {
                         volumes: bib.volumes.length,
                         call_number: this.getSpecificTag(bib.marc_tags, "082")
                     });
+                    index++;
                 });
             });
         },
         getCourses() {
             axios
-                .get("/course")
+                .get("/subject")
                 .then(res => {
-                    this.courses = res.data;
+                    this.subjects = res.data;
                 })
                 .catch(err => {
                     console.log(err);

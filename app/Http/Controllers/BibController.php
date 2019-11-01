@@ -6,6 +6,7 @@ use App\Bib;
 use Illuminate\Http\Request;
 use App\BibVolume;
 use App\BibMarcTag;
+use App\Subject;
 
 class BibController extends Controller
 {
@@ -34,6 +35,8 @@ class BibController extends Controller
 
         return view('bibs');
     }
+
+
     public function byCourse(Request $request)
     {
         $bibs = [];
@@ -51,6 +54,23 @@ class BibController extends Controller
 
         return response()->json(Subject::all());
     }
+
+    public function bySubject(Request $request)
+    {
+        $subjects = [];
+
+        if ($request->has('id')) {
+
+            $id = $request->get('id');
+
+            $subjects = Subject::where('id', $id)->with('bibs.marc_tags', 'bibs.volumes')->has('bibs')->get();
+
+            return response()->json($subjects);
+        }
+
+        return response()->json(Subject::with('bibs.marc_tags', 'bibs.volumes')->has('bibs')->get());
+    }
+
     /**
      * Store a newly created resource in storage.
      *
