@@ -19,7 +19,13 @@
                 </tr>
             </tbody>
         </table>
+        <el-form>
+            <el-form-item label="No. of  volumes:">
+                <span>{{ bib.volumes.length}}</span>
+            </el-form-item>
+        </el-form>
         <h5>Subjects</h5>
+
         <el-form v-for="(subject, index) in bib.subjects" :key="index">
             <el-form-item label="Subject code:">
                 <span>{{ subject.course_code}}</span>
@@ -73,7 +79,8 @@ label.el-form-item__label {
 td {
     padding: 7px;
 }
-label.el-form-item__label, .el-form-item__content {
+label.el-form-item__label,
+.el-form-item__content {
     line-height: 35px;
 }
 </style>
