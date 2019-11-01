@@ -28,7 +28,7 @@
 
         <el-form v-for="(subject, index) in bib.subjects" :key="index">
             <el-form-item label="Subject code:">
-                <span>{{ subject.course_code}}</span>
+                <span>{{ subject.code}}</span>
             </el-form-item>
             <el-form-item label="Subject description:">
                 <span>{{ subject.name}}</span>
