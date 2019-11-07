@@ -60,7 +60,10 @@ class ByDateOfPublication extends ReportsRepository
             }
         }
 
+        ksort($reports);
+        
         $real_reports = [];
+       
         foreach ($reports as $key => $report) {
             $data = [
                 $key, $report['volumes'], $report['no_of_titles']

@@ -23,6 +23,9 @@
             <el-form-item label="No. of  volumes:">
                 <span>{{ bib.volumes.length}}</span>
             </el-form-item>
+            <el-form-item label="No. of  views:">
+                <span>{{ bib.views}}</span>
+            </el-form-item>
         </el-form>
         <h5>Subjects</h5>
 
@@ -53,6 +56,7 @@ export default {
         bib() {
             return this.p_bib;
         },
+
         marc_tags() {
             return this.p_marc_tags;
         },

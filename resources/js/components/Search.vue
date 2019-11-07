@@ -84,7 +84,7 @@
                                     <el-button
                                         size="mini"
                                         type="primary"
-                                        @click="setUpBibData(bib)"
+                                        @click="updateBibViews(bib)"
                                     >{{ action }}</el-button>
                                 </el-button-group>
                             </td>
@@ -224,12 +224,12 @@ export default {
             this.search(this.keyword);
         },
         setUpBibData(bib) {
-            this.updateBibViews(bib.id);
             this.$refs["bib_modal"].setSubjects(bib.subjects);
 
             this.current_bib.id = bib.id;
             this.current_bib.volumes = bib.volumes;
-
+            this.current_bib.views = bib.views;
+            
             this.current_bib.marc_tags = bib.marc_tags.map(marc_tag => {
                 let data = {
                     id: marc_tag.id,
@@ -257,10 +257,13 @@ export default {
                 this.show_view_bib_modal = true;
             }
         },
-        updateBibViews(id) {
+        updateBibViews(bib) {
             axios
-                .patch("/bib/update-bib-view/" + id)
-                .then(res => {})
+                .patch("/bib/update-bib-view/" + bib.id)
+                .then(res => {
+                    bib.views += 1;
+                    this.setUpBibData(bib);
+                })
                 .catch(err => {
                     console.log(err);
                 });
