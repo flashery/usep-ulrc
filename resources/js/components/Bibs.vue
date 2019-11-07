@@ -359,6 +359,8 @@ export default {
 
             this.current_bib.id = bib.id;
             this.current_bib.volumes = bib.volumes;
+            this.current_bib.views = bib.views;
+            
             this.current_bib.subjects = bib.subjects.map(subject => {
                 return subject.id;
             });
