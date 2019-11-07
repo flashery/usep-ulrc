@@ -137,6 +137,9 @@
                             @click="form.volumes.push({})"
                         >Add volume</el-button>
                     </el-form-item>
+                    <el-form-item label="No. of views">
+                       <span>{{ form.views}}</span>
+                    </el-form-item>
                     <el-form-item label="Subjects">
                         <el-select
                             multiple
