@@ -138,7 +138,7 @@
                         >Add volume</el-button>
                     </el-form-item>
                     <el-form-item label="No. of views">
-                       <span>{{ form.views}}</span>
+                        <span>{{ form.views}}</span>
                     </el-form-item>
                     <el-form-item label="Subjects">
                         <el-select
@@ -327,9 +327,12 @@ export default {
                 })
                 .catch(err => {
                     this.modal_loading = false;
-
+                    console.log(err.response);
+                    let error_message = err.response.data.error
+                        ? err.response.data.error
+                        : "Sorry, there is an error adding the bib.";
                     this.$message({
-                        message: "Sorry, there is an error adding the bib.",
+                        message: error_message,
                         type: "error"
                     });
                 });

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\MarcTag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
 class MarcTagController extends Controller
 {
 

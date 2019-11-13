@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\BibVolume;
 use App\BibMarcTag;
 use App\Subject;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BibController extends Controller
 {
@@ -79,6 +81,16 @@ class BibController extends Controller
      */
     public function store(Request $request)
     {
+        foreach ($request->get('marc_tags') as $bib_tag) {
+
+            if ($bib_tag['marc_tag'] === '016') {
+
+                $bib_marc_tag =  BibMarcTag::where('marc_tag_id', $bib_tag['id'])->where('value', $bib_tag['value'])->first();
+
+                if ($bib_marc_tag)
+                    return response()->json(['error' => 'Bib already exist'], 400);
+            }
+        }
         // $data = $request->g
         $subject_ids = $request->get('subjects');
         $volumes = $request->get('volumes');
@@ -86,6 +98,8 @@ class BibController extends Controller
         $bib_volumes = [];
         $bib_subjects = [];
         $bib_tags = [];
+
+
 
         foreach ($subject_ids as  $index => $subject_id) {
             if (!$subject_id) {
